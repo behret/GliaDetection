@@ -3,7 +3,6 @@ function [ output_args ] = calcSkelDist(PixelList)
 %   Detailed explanation goes here
     
     cube = visualizeSegment(PixelList);
-    skel =  skeleton3D(cube);
 
 end
 
