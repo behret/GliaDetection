@@ -1,62 +1,72 @@
-function segments = calcFeatures(segments,featureFlag,raw)
+function [featureMat,ids,names,filterIdx] = calcFeatures(segments,featureFlag,raw)
     
-    featureCount = 1;
     delList = [];
+   
     for i=1:length(segments)
-     
+        featureCount = 1;
         PixelList = segments(i).PixelList;     
+        
         objSize = length(PixelList);
-        if objSize > 10000 
-        %size
-            if(featureFlag(1))
-                segments(i).features(featureCount) = objSize;     
-                featureCount = featureCount+1;
-            end
-        %pca
-            if(featureFlag(2))
-                [COEFF,SCORE,latent] = princomp(PixelList);
-                pcFracs = latent./sum(latent);
-                segments(i).features(featureCount) = pcFracs(1);
-                segments(i).features(featureCount+1) = pcFracs(2);
-                segments(i).features(featureCount+2) = pcFracs(3);
-                segments(i).features(featureCount+3) = pcFracs(3)/pcFracs(2);
-                segments(i).features(featureCount+4) = pcFracs(3)/pcFracs(1);
-                segments(i).features(featureCount+5) = pcFracs(2)/pcFracs(1);
-                segments(i).features(featureCount+6) = -pcFracs(1)*log(pcFracs(1))-pcFracs(2)*log(pcFracs(2))-pcFracs(3)*log(pcFracs(3));
-                featureCount = featureCount+7;
-
-            end
-        
-        %concavity
-            if(featureFlag(3))
-                segments(i).features(featureCount) = calcConcavity(PixelList,10);
-                featureCount = featureCount+1;
-            end
-            
-        %intensities
-            if(featureFlag(4)) 
-                [meanIntesity,stdIntensity] = calcIntensities(PixelList,raw);
-                segments(i).features(featureCount) = meanIntesity;
-                segments(i).features(featureCount+1) = meanIntesity;
-            end
-        %...
-        
-        else
+        [COEFF,SCORE,latent] = princomp(PixelList);
+        pcFracs = latent./sum(latent);
+        % throw out too small segments, check pc1 to leave in leaf like
+        % segments
+        if objSize < 2000     
             delList(end+1) = i;
+            continue;
+%             if pcFracs(1) < 0.8 || objSize < 1000             
+%                 delList(end+1) = i;
+%                 continue;
+%             end
         end
-    end
-    segments(delList) = [];
-end
+        
+    %size, pca
+        if(featureFlag(1))
+            segments(i).features(featureCount) = objSize;                     
+            segments(i).features(featureCount+1) = pcFracs(1);
+            segments(i).features(featureCount+2) = pcFracs(2);
+            segments(i).features(featureCount+3) = pcFracs(3);
+            segments(i).features(featureCount+4) = pcFracs(3)/pcFracs(2);
+            segments(i).features(featureCount+5) = pcFracs(3)/pcFracs(1);
+            segments(i).features(featureCount+6) = pcFracs(2)/pcFracs(1);
+            segments(i).features(featureCount+7) = -pcFracs(1)*log(pcFracs(1))-pcFracs(2)*log(pcFracs(2))-pcFracs(3)*log(pcFracs(3));
+            featureCount = featureCount+8;
+        end
 
- 
-%                 objIdx = sub2ind(size(raw),PixelList(:,1),PixelList(:,2),PixelList(:,3));
-%                 mitoVox = intersect(objIdx,mitoIdx);
-% 
-%                 if length(mitoVox) > 500
-%                     intensity = sum(raw(mitoVox))./length(mitoVox);
-%                 else
-%                     intensity = NaN; 
-%                 end
-%                 segments(i).features(6) = intensity;
-%                 featureCount = featureCount+1;
+    %concavity
+        if(featureFlag(2))
+            segments(i).features(featureCount) = calcConcavity(PixelList,10);
+            featureCount = featureCount+1;
+        end
+
+    %intensities
+        if(featureFlag(3)) 
+            [ meanIntensity,stdIntensity,darkRatio,lightRatio ]  = calcIntensities(PixelList,raw);
+            segments(i).features(featureCount) = meanIntensity;
+            segments(i).features(featureCount+1) = stdIntensity;
+            segments(i).features(featureCount+2) = darkRatio;
+            segments(i).features(featureCount+3) = lightRatio;
+            featureCount = featureCount+4;
+        end
+    %...
+    
+    end
+    % delete too small segments, restructure features
+    segments(delList) = [];   
+    featureMat = reshape(cell2mat({segments.features}),length(segments(1).features),length(segments))';
+    ids = cell2mat({segments.id})';
+    filterIdx = setdiff(1:length(segments),delList);
+    
+    % feature names..
+    featureNames{1} = {'size' ; 'frac pc1' ; 'frac pc2' ; 'frac pc3' ; 'frac pc3/frac pc2' ; 'frac pc3/frac pc1' ; 'frac pc2/frac pc1' ; 'entropy pc fracs'};
+    featureNames{2} = {'concavity'};
+    featureNames{3} = {'mean intensity' ; 'std intensity' ; 'darkRatio' ; 'lightRatio1' }; 
+    a = featureNames(find(featureFlag));
+    names = cell(0);
+    for i=1:length(a)
+        [names{length(names)+1 : length(names)+length(a{i})}] = a{i}{:};
+    end
+    
+   
+end
 

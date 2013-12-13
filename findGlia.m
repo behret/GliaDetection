@@ -1,88 +1,96 @@
-function [] = findGlia(seg,raw,p,glia,nonGlia,skel)
+function [gliaMat,nonGliaMat] = findGlia(seg,raw,p,skel,glia,nonGlia)
 %ISSUES
 % calc features for every object directly and drop pixellist => memory,
 % parallel!
 
+tic
+%tracing = 'denseHeiko';
+tracing = 'denseAlex';p.bboxBig = [1417 1717; 4739 5039; 890 1190];
+
 %%  get segments
 
-if(nargin == 2)
-    skelPath = 'R:\Benjamin\GliaDetection\data\dense\dense.nml';
-    skel = readNml(skelPath,1);
-
-    %
-    % group nodes, delete check in getPixelLists
-    %
-
-    tic
-    [glia,nonGlia] = getSegments(skel,seg,p);
-    toc
-
-    save('R:\Benjamin\GliaDetection\data\dense\inputs_mito','-v7.3');
+if(nargin < 5)
+    if(nargin == 3)
+        skelPath = ['R:\Benjamin\GliaDetection\data\' tracing '\dense.nml'];
+        skel = readNml(skelPath,1);
+    end
+    bbox = p.bboxBig;
+    [glia,nonGlia] = getLabeledSegments(skel,seg,bbox);
+    save(['G:\Benjamin\' tracing '\inputs'],'-v7.3');
 end
 
 %% calculate features
-%load('G:\Benjamin\dense\inputs');
+%load(['G:\Benjamin\' tracing '\inputs']);
 
-featureFlag = [0 0 0 1];
+featureFlag = [1 1 1];
 
 tic
-glia = calcFeatures(glia,featureFlag,raw);
+[gliaMat,ids_glia,featureNames,filterIdx_glia] = calcFeatures(glia,featureFlag,raw);
 toc
 tic
-nonGlia = calcFeatures(nonGlia,featureFlag,raw);
+[nonGliaMat,ids_nonGlia,featureNames,filterIdx_nonGlia] = calcFeatures(nonGlia,featureFlag,raw);
 toc
-
-%save('G:\Benjamin\dense\features','glia','nonGlia','-v7.3');
-
-
-
+clear seg raw;
+save(['G:\Benjamin\' tracing '\features'],'-v7.3');
 
 %% plot distinction
 
-featureMatGlia = cell2mat({glia.features});
-featureMatGlia = reshape(featureMatGlia,length(glia(1).features),length(glia));
-
-featureMatNonGlia = cell2mat({nonGlia.features});
-featureMatNonGlia = reshape(featureMatNonGlia,length(nonGlia(1).features),length(nonGlia));
-
-for i=1:size(featureMatGlia,1)   
-    fig = getHist(featureMatGlia(i,:)',featureMatNonGlia(i,:)',['feature' num2str(i)]);
-    path = ['R:\Benjamin\GliaDetection\data\' strrep(datestr(now),':','')];
-    mkdir(['R:\Benjamin\GliaDetection\data\' strrep(datestr(now),':','')]);
-    print(fig, '-dpdf', [path '\feature' num2str(i)]);
+path = ['R:\Benjamin\GliaDetection\histos\' tracing '\' strrep(datestr(now),':','')];
+mkdir(path);
+for i=1:size(gliaMat,2)   
+    fig = getHist(gliaMat(:,i),nonGliaMat(:,i),featureNames{i});   
+    if(i == 1)
+        print(fig, '-dpsc2', [path '\distinction']);
+    else
+        print(fig, '-dpsc2', [path '\distinction'], '-append'); 
+    end
 end
 
 
+%% train and test
+
+%load(['G:\Benjamin\' tracing '\features']);
+[predGlia,predNonGlia] = crossVal(gliaMat,nonGliaMat,2);
+save(['G:\Benjamin\' tracing '\predictions'],'-v7.3');
 
 
 
-% plot intensities
+% analyse in KLEE
+% cubeGlia = getSegCube(glia,size(seg));
+% KLEE_v4('stack',seg,'stack_2',raw,'stack_3',cubeGlia);
+
+% gliaTP = glia(predGlia);
+% cubeTP = getSegCube(gliaTP,size(seg));
+
+
+% analyze wrong/right
+% right.glia = gliaMat(predGlia);
+% right.nonGlia = nonGliaMat(imcomplement(predNonGlia));
+% wrong.glia = gliaMat(imcomplement(predGlia));
+% wrong.nonGlia = nonGliaMat(predNonGlia);
 % 
-% PixelList = cell(1);
-% PixelList{1} = cell2mat({glia.PixelList}');
-% PixelList{2} = cell2mat({nGlia.PixelList}');
-% intensities = cell(1);
-% intensities{1} = raw(sub2ind(size(raw),PixelList{1}(:,1),PixelList{1}(:,2),PixelList{1}(:,3)));
-% intensities{2} = raw(sub2ind(size(raw),PixelList{2}(:,1),PixelList{2}(:,2),PixelList{2}(:,3)));
-% figure
-% cdfplot(intensities{1})
-% hold on
-% cdfplot(intensities{2})
-% 
-% figure
-% hist(intensities{1},50);
-% figure 
-% hist(intensities{2},50);
+% path = ['R:\Benjamin\GliaDetection\histos\' tracing '\' strrep(datestr(now),':','')];
+% mkdir(path);
+% for i=1:size(wrong.glia,2)   
+%     fig = getHist(right.glia(:,i),wrong.glia(:,i),featureNames{i},1);
+%     if(i == 1)
+%         print(fig, '-dpsc2', [path '\analysisWrongRight_Glia']);
+%     else
+%         print(fig, '-dpsc2', [path '\analysisWrongRight_Glia'], '-append'); 
+%     end
+% end
+% for i=1:size(wrong.nonGlia,2)   
+%     fig = getHist(right.nonGlia(:,i),wrong.nonGlia(:,i),featureNames(i),1);
+%     if(i == 1)
+%         print(fig, '-dpsc2', [path '\analysisWrongRight_nonGlia']);
+%     else
+%         print(fig, '-dpsc2', [path '\analysisWrongRight_nonGlia'], '-append'); 
+%     end
+% end
 
-
+toc
 
 end
-
-
-
-
-
-
 
 
 

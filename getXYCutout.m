@@ -1,6 +1,6 @@
 function im = getXYCutout(point,volume,type,vid)
 
-range = 100;
+range = 60;
 if(vid)
 
     
@@ -23,6 +23,7 @@ else
 
 pic = volume(point(1)-range:point(1)+range, point(2)-range:point(2)+range, point(3));
 pic = pic';
+figure
 im = imagesc(pic);
     if(strcmp(type,'raw'))
         colormap(gray);

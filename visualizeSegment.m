@@ -1,4 +1,4 @@
-function [ cube ] = visualizeSegment(PixelList,play,raw)
+function [ cube ] = visualizeSegment(PixelList,raw,play,issf)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
     
@@ -25,6 +25,18 @@ function [ cube ] = visualizeSegment(PixelList,play,raw)
         if play
             implay(uint8(cube));
         end
+    end
+    
+    if(issf)
+        issf = isosurface(logical(cube));
+        k = patch(issf);
+        set(k, 'FaceColor', [0 1 0], 'EdgeColor', 'none');
+        view(3);
+        daspect([28 28 11.3]);
+        grid on;
+        alpha(.7);
+        camlight('headlight');
+        lighting phong;
     end
 end
 
