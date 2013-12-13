@@ -1,4 +1,4 @@
-function [featureMat,ids,names,filterIdx] = calcFeatures(segments,featureFlag,raw)
+function [featureMat,labels,idx,names] = calcFeatures(segments,featureFlag,raw)
     
     delList = [];
    
@@ -54,28 +54,28 @@ function [featureMat,ids,names,filterIdx] = calcFeatures(segments,featureFlag,ra
     % delete too small segments, restructure features
     segments(delList) = [];   
     featureMat = reshape(cell2mat({segments.features}),length(segments(1).features),length(segments))';
-    ids = cell2mat({segments.id})';
-    filterIdx = setdiff(1:length(segments),delList);
+    labels = cell2mat({segments.label});
+    idx = setdiff(1:length(segments),delList);
+       
+    % scale features
+    
+    for feat = 1:size(featureMat,2)
+        featureMat(:,feat) = (featureMat(:,feat)-min(featureMat(:,feat))) / ...
+            (max(featureMat(:,feat)) - min(featureMat(:,feat)));
+    end
+    
+    
     
     % feature names..
     featureNames{1} = {'size' ; 'frac pc1' ; 'frac pc2' ; 'frac pc3' ; 'frac pc3/frac pc2' ; 'frac pc3/frac pc1' ; 'frac pc2/frac pc1' ; 'entropy pc fracs'};
     featureNames{2} = {'concavity'};
-    featureNames{3} = {'mean intensity' ; 'std intensity' ; 'darkRatio' ; 'lightRatio1' }; 
+    featureNames{3} = {'mean intensity' ; 'std intensity' ; 'darkRatio' ; 'lightRatio' }; 
     a = featureNames(find(featureFlag));
     names = cell(0);
     for i=1:length(a)
         [names{length(names)+1 : length(names)+length(a{i})}] = a{i}{:};
     end
     
-    
-    %% scale features
-    
-    
-    
-    
-    
-    
-    
-    
+   
 end
 

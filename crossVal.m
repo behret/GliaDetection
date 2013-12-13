@@ -1,5 +1,8 @@
-function [predGlia,predNonGlia] = crossVal(gliaMat,nonGliaMat,kfold)
+function [predGlia,predNonGlia] = crossVal(featureMat,labels,kfold)
 
+
+gliaMat = featureMat(find(labels),:);
+nonGliaMat = featureMat(find(imcomplement(labels)),:);
 
 glia.part = cvpartition(length(gliaMat),'kfold',kfold);
 nonGlia.part = cvpartition(length(nonGliaMat),'kfold',kfold);
@@ -35,11 +38,12 @@ for i = 1:kfold
     
     
     
-    %%% LIBSVM
-    SVMStruct = svmtrain(labels,train,'-b');
-
-    
-    %%%
+%     %%% LIBSVM
+%     model = svmtrain(labels,train);
+%     labelsTest = [ones(size(testGlia,1),1) ; zeros(size(testNonGlia,1),1)];
+%     predicted_label = svmpredict(labelsTest,test,model);
+%     
+%     %%%
     
     
     
@@ -61,6 +65,8 @@ for i = 1:kfold
     end
     
 end
+
+
 figure
 boxplot(rates(:,[1,3]));
 set(gca,'XTick',[1 2])

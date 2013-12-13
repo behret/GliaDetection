@@ -1,4 +1,4 @@
-function [resultGlia,resultNonGlia] = getLabeledSegments(skel,seg,bbox)
+function result = getLabeledSegments(skel,seg,bbox)
 
     %% get traced bbox and tree ids
     comments = skel{1}.commentsString;
@@ -105,12 +105,14 @@ function [resultGlia,resultNonGlia] = getLabeledSegments(skel,seg,bbox)
      
     %restructure and resolve XY swap
     for i=1:length(glia.ids)
-        resultGlia(i).id = glia.ids(i);
-        resultGlia(i).PixelList = [glia.PixelLists(i).PixelList(:,2) glia.PixelLists(i).PixelList(:,1) glia.PixelLists(i).PixelList(:,3)];
+        result(i).id = glia.ids(i);
+        result(i).PixelList = [glia.PixelLists(i).PixelList(:,2) glia.PixelLists(i).PixelList(:,1) glia.PixelLists(i).PixelList(:,3)];
+        result(i).label = 1;
     end 
     for i=1:length(nonGlia.ids)
-        resultNonGlia(i).id = nonGlia.ids(i);
-        resultNonGlia(i).PixelList = [nonGlia.PixelLists(i).PixelList(:,2) nonGlia.PixelLists(i).PixelList(:,1) nonGlia.PixelLists(i).PixelList(:,3)];
+        result(length(glia.ids)+i).id = nonGlia.ids(i);
+        result(length(glia.ids)+i).PixelList = [nonGlia.PixelLists(i).PixelList(:,2) nonGlia.PixelLists(i).PixelList(:,1) nonGlia.PixelLists(i).PixelList(:,3)];
+        result(length(glia.ids)+i).label = 0;
     end
 
 %%%%% analysis missed segments

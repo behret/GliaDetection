@@ -1,4 +1,4 @@
-function [gliaMat,nonGliaMat] = findGlia(seg,raw,p,skel,glia,nonGlia)
+function [] = findGlia(seg,raw,p,skel,segments)
 %ISSUES
 % calc features for every object directly and drop pixellist => memory,
 % parallel!
@@ -15,36 +15,25 @@ if(nargin < 5)
         skel = readNml(skelPath,1);
     end
     bbox = p.bboxBig;
-    [glia,nonGlia] = getLabeledSegments(skel,seg,bbox);
-    save(['G:\Benjamin\' tracing '\inputs'],'-v7.3');
+    segments = getLabeledSegments(skel,seg,bbox);
+    save(['G:\Benjamin\' tracing '\inputsNew'],'-v7.3');
 end
 
 %% calculate features
 %load(['G:\Benjamin\' tracing '\inputs']);
 
 featureFlag = [1 1 1];
-
-tic
-[gliaMat,ids_glia,featureNames,filterIdx_glia] = calcFeatures(glia,featureFlag,raw);
-toc
-tic
-[nonGliaMat,ids_nonGlia,featureNames,filterIdx_nonGlia] = calcFeatures(nonGlia,featureFlag,raw);
-toc
+[featureMat,labels,idx,featureNames] = calcFeatures(segments,featureFlag,raw);
 clear seg raw;
-
-% scale features
-scaleFeatures(gliaMat,nonGliaMat);   
-    
-
-save(['G:\Benjamin\' tracing '\features'],'-v7.3');
+save(['G:\Benjamin\' tracing '\featuresNew'],'-v7.3');
 
 
 %% plot distinction
 
 path = ['R:\Benjamin\GliaDetection\histos\' tracing '\' strrep(datestr(now),':','')];
 mkdir(path);
-for i=1:size(gliaMat,2)   
-    fig = getHist(gliaMat(:,i),nonGliaMat(:,i),featureNames{i});   
+for i=1:size(featureMat,2)   
+    fig = getHist(featureMat(find(labels),i),featureMat(find(imcomplement(labels)),i),featureNames{i});   
     if(i == 1)
         print(fig, '-dpsc2', [path '\distinction']);
     else
@@ -56,8 +45,8 @@ end
 %% train and test
 
 %load(['G:\Benjamin\' tracing '\features']);
-[predGlia,predNonGlia] = crossVal(gliaMat,nonGliaMat,2);
-save(['G:\Benjamin\' tracing '\predictions'],'-v7.3');
+[predGlia,predNonGlia] = crossVal(featureMat,labels,4);
+save(['G:\Benjamin\' tracing '\predictionsNew'],'-v7.3');
 
 
 
