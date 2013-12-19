@@ -1,4 +1,4 @@
-function [predGlia,predNonGlia] = crossVal(featureMat,labels,kfold)
+function [predAll,rates] = crossVal(featureMat,labels,kfold,sigma,C)
 
 
 gliaMat = featureMat(find(labels),:);
@@ -47,9 +47,9 @@ for i = 1:kfold
     
     
     
-    SVMStruct = svmtrain(train,labels);
+    SVMStruct = svmtrain(train,labels,'kernel_function','rbf','rbf_sigma',sigma,'boxconstraint',C);
     
-    pred = svmclassify(SVMStruct,test);
+    [pred,regVal] = svmclassifyR(SVMStruct,test);
     tp = sum(pred(1:length(testGlia)))/length(testGlia);
     fn = 1-tp;
     fp = sum(pred(length(testGlia)+1:end))/length(testNonGlia);
@@ -58,18 +58,47 @@ for i = 1:kfold
     
     for j = 1:length(pred)
         if j <= size(testGlia,1)
-            predGlia(idxTest.glia(j)) = pred(j);
+            predAll(idxTest.glia(j),1:3) = [pred(j) regVal(j) 1];
         else
-            predNonGlia(idxTest.nonGlia(j-size(testGlia,1))) = pred(j);
+            predAll(idxTest.nonGlia(j-size(testGlia,1))+length(gliaMat),1:3) = [pred(j) regVal(j) 0];
         end
     end
     
 end
 
+% % boxplot
+% figure
+% boxplot(rates(:,[1,3]));
+% set(gca,'XTick',[1 2])
+% set(gca,'XTickLabel',{'true positives','true negatives'});
+% 
+% % ROC
+% [a b] = sort(predAll(:,2));
+% c = predAll(b,:);
+% positives = c(c(:,1) == 1,:);
+% TP = positives(positives(:,3) == 1);
+% FP = positives(positives(:,3) == 0);
+% 
+% val.pos = 0;
+% val.neg = 0;
+% val.stepPos = 1/length(TP);
+% val.stepNeg = 1/length(FP);
+% 
+% for i = 1: length(positives)
+%     if positives(i,3)
+%         val.pos = val.pos + val.stepPos;
+%     else
+%         val.neg = val.neg + val.stepNeg;
+%     end
+%     x(i) = val.neg;
+%     y(i) = val.pos;
+% end
+% 
+% figure
+% plot(x,y,[0 1],[0 1]);
+% xlim([0 1]);
+% ylim([0 1]);
 
-figure
-boxplot(rates(:,[1,3]));
-set(gca,'XTick',[1 2])
-set(gca,'XTickLabel',{'true positives','true negatives'});
+
 
 end

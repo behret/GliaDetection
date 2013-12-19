@@ -1,49 +1,67 @@
 function result = getLabeledSegments(skel,seg,bbox)
-    %% set bbox
-    bboxIdx = find(cellfun(@(x) strcmp('Tree935',x),skel.names));
+
+    %% get traced bbox and tree ids
+    comments = skel{1}.commentsString;
+    patternBbox = '\d+"\scontent="bbox';
+    bboxComment = regexp(comments,patternBbox,'match');
+    split = strsplit(bboxComment{1}{1},'"');
+    bboxNode = str2num(split{1,1});
+    
+   
+    pattern = '\d+"\scontent="(glia|oligoden)';
+    GliasComments = regexp(comments,pattern,'match');    
+    for i=1:length(GliasComments{1})
+        splits = strsplit(GliasComments{1}{i},'"');
+        GliaNodeIds(i) = str2num(splits{1,1});
+    end
+    
+
+    gliaTrees = [];
+    for i=1:length(skel)
+        clear nodes;
+        for j=1:length(skel{i}.nodesAsStruct)
+            nodes(j) = str2num(skel{i}.nodesAsStruct{j}.id);
+        end
+           
+        if ~isempty(intersect(nodes,GliaNodeIds));
+            gliaTrees(end+1) = skel{i}.thingID;
+        end
+        if any(nodes == bboxNode)
+            bboxIdx = i;
+        end
+    end
     
     % +- 1 because seg has offset! if it does not, change!!!
-    bboxTraced = [min(skel.nodes{bboxIdx}(:,1))+1 max(skel.nodes{bboxIdx}(:,1))-1 ; ...
-        min(skel.nodes{bboxIdx}(:,2))+1 max(skel.nodes{bboxIdx}(:,2))-1 ; ...
-        min(skel.nodes{bboxIdx}(:,3))+1 max(skel.nodes{bboxIdx}(:,3))-1] ;
+    bboxTraced = [min(skel{bboxIdx}.nodes(:,1))+1 max(skel{bboxIdx}.nodes(:,1))-1 ; ...
+        min(skel{bboxIdx}.nodes(:,2))+1 max(skel{bboxIdx}.nodes(:,2))-1 ; ...
+        min(skel{bboxIdx}.nodes(:,3))+1 max(skel{bboxIdx}.nodes(:,3))-1] ;
 
     
     if any(bbox(:,1) - bboxTraced(:,1) > 0) || any(bbox(:,2) - bboxTraced(:,2) < 0)
         disp('seg too small!');
     end 
-        
-    %% get tree ids
-
-    gliaTrees = [];
-    for i=1:length(skel.nodesAsStruct)
-        for j=1:length(skel.nodesAsStruct{i})
-            if strcmp(skel.nodesAsStruct{i}{j}.comment,'glia') || strcmp(skel.nodesAsStruct{i}{j}.comment,'oligoden') 
-                gliaTrees(end+1) = skel.thingIDs(i);
-                continue;
-            end
-        end
-    end
-  
+    
     %% get segment ids
     glia.ids = [];
     nonGlia.ids = [];
     
-    for i=1:length(skel.nodes)
-        if i == bboxIdx
-            continue;
-        end
-        gliaFlag = any(gliaTrees == skel.thingIDs(i));
-        for j=1:size(skel.nodes{i})
+    for i=1:length(skel)
+    if i == bboxIdx
+        continue;
+    end
+    gliaFlag = any(gliaTrees == skel{i}.thingID);
+        for j=1:size(skel{i}.nodes)
             %restrict on dense bbox, switch to local coords
-            if(any(bboxTraced(:,1)' - skel.nodes{i}(j,1:3) > 0) || any(bboxTraced(:,2)' - skel.nodes{i}(j,1:3) < 0))
+            if(any(bboxTraced(:,1)' - skel{i}.nodes(j,1:3) > 0) || any(bboxTraced(:,2)' - skel{i}.nodes(j,1:3) < 0))
                 continue;
             end
-            localCoords = transformCoords(skel.nodes{i}(j,1:3),bbox,0);
+            localCoords = transformCoords(skel{i}.nodes(j,1:3),bbox,0);
             if gliaFlag
                 glia.ids(end+1) = seg(localCoords(1),localCoords(2),localCoords(3));
             else
                 nonGlia.ids(end+1) = seg(localCoords(1),localCoords(2),localCoords(3));
-            end           
+            end
+            
         end
     end
  
@@ -76,7 +94,8 @@ function result = getLabeledSegments(skel,seg,bbox)
     nonGlia.ids = setdiff(nonGlia.ids,commonIds);
     
     %% get segment pixel lists
-
+    
+    
     bboxTracedLocal = [transformCoords(bboxTraced(:,1)',bbox,0)' transformCoords(bboxTraced(:,2)',bbox,0)']; 
     bboxSeg = seg(bboxTracedLocal(1,1):bboxTracedLocal(1,2),bboxTracedLocal(2,1):bboxTracedLocal(2,2),bboxTracedLocal(3,1):bboxTracedLocal(3,2));   
     props = regionprops(bboxSeg,'PixelList');

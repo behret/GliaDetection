@@ -6,6 +6,8 @@ maxVal = max(max(glia),max(nonGlia));
 
 plotData = zeros(2,nrBins);
 
+%change to h = hist(glia)...
+
 for i=1:length(glia)
 
     idx = floor((glia(i)-minVal)./((maxVal-minVal)./nrBins))+1;

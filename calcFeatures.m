@@ -10,14 +10,10 @@ function [featureMat,labels,idx,names] = calcFeatures(segments,featureFlag,raw)
         [COEFF,SCORE,latent] = princomp(PixelList);
         pcFracs = latent./sum(latent);
         % throw out too small segments, check pc1 to leave in leaf like
-        % segments
+        % segments??
         if objSize < 2000     
             delList(end+1) = i;
             continue;
-%             if pcFracs(1) < 0.8 || objSize < 1000             
-%                 delList(end+1) = i;
-%                 continue;
-%             end
         end
         
     %size, pca
@@ -52,19 +48,11 @@ function [featureMat,labels,idx,names] = calcFeatures(segments,featureFlag,raw)
     
     end
     % delete too small segments, restructure features
+    idx = setdiff(1:length(segments),delList);
     segments(delList) = [];   
     featureMat = reshape(cell2mat({segments.features}),length(segments(1).features),length(segments))';
     labels = cell2mat({segments.label});
-    idx = setdiff(1:length(segments),delList);
-       
-    % scale features
-    
-    for feat = 1:size(featureMat,2)
-        featureMat(:,feat) = (featureMat(:,feat)-min(featureMat(:,feat))) / ...
-            (max(featureMat(:,feat)) - min(featureMat(:,feat)));
-    end
-    
-    
+        
     
     % feature names..
     featureNames{1} = {'size' ; 'frac pc1' ; 'frac pc2' ; 'frac pc3' ; 'frac pc3/frac pc2' ; 'frac pc3/frac pc1' ; 'frac pc2/frac pc1' ; 'entropy pc fracs'};
