@@ -34,7 +34,15 @@ for i = [1 2]
     [tracings(i).feat.scaled,tracings(i).feat.unscaled,tracings(i).feat.labels,tracings(i).feat.names] ...
         = calcFeatures(tracings(i).segments,featureFlag,tracings(i).raw);
     toc
+    
+    tic
+    
+    toc
+
+
 end
+
+
 
 featureMat = [tracings(1).feat.scaled ; tracings(2).feat.scaled];
 featureMat(isnan(featureMat)) = 0;

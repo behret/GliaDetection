@@ -1,0 +1,16 @@
+function parameter = setParam()
+
+
+parameter.cubeFile = 'G:\Benjamin\denseAlex\cubes\cubesAll';
+parameter.segmentFile = '';
+parameter.feature.root = 'G:\Benjamin\intensityFeatures\';
+%parameter.filter = {{'sortedeigenvalueshessian' 5 []}};
+parameter.filter = {{'sortedeigenvalueshessian' [5] []}...
+     {'gaussiansmoothedgradmagnitude' [5] []}...
+     {'intensitygaussiansmoothed' [5] []}...
+     {'sortedeigenvaluesstructure' [3 5] [5 7]}...
+     {'laplaceofgaussian' [3 5] []}...
+     {'differenceofgaussians' [3 5] []}};
+     
+end
+

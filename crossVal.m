@@ -1,4 +1,4 @@
-function [predAll,rates] = crossVal(featureMat,labels,kfold,sigma,C)
+function [predAll,rates] = crossVal(featureMat,labels,kfold,sigma,C,plotFlag)
 
 
 gliaMat = featureMat(find(labels),:);
@@ -66,39 +66,41 @@ for i = 1:kfold
     
 end
 
-% % boxplot
-% figure
-% boxplot(rates(:,[1,3]));
-% set(gca,'XTick',[1 2])
-% set(gca,'XTickLabel',{'true positives','true negatives'});
-% 
-% % ROC
-% [a b] = sort(predAll(:,2));
-% c = predAll(b,:);
-% positives = c(c(:,1) == 1,:);
-% TP = positives(positives(:,3) == 1);
-% FP = positives(positives(:,3) == 0);
-% 
-% val.pos = 0;
-% val.neg = 0;
-% val.stepPos = 1/length(TP);
-% val.stepNeg = 1/length(FP);
-% 
-% for i = 1: length(positives)
-%     if positives(i,3)
-%         val.pos = val.pos + val.stepPos;
-%     else
-%         val.neg = val.neg + val.stepNeg;
-%     end
-%     x(i) = val.neg;
-%     y(i) = val.pos;
-% end
-% 
-% figure
-% plot(x,y,[0 1],[0 1]);
-% xlim([0 1]);
-% ylim([0 1]);
+if(plotFlag)
+    % boxplot
+    figure
+    boxplot(rates(:,[1,4]));
+    set(gca,'XTick',[1 2])
+    set(gca,'XTickLabel',{'true positive rate','false positive rate'});
+    ylim([0 1]);
+    
+    % ROC
+    [a b] = sort(predAll(:,2));
+    c = predAll(b,:);
+    positives = c(c(:,1) == 1,:);
+    TP = positives(positives(:,3) == 1);
+    FP = positives(positives(:,3) == 0);
 
+    val.pos = 0;
+    val.neg = 0;
+    val.stepPos = 1/length(TP);
+    val.stepNeg = 1/length(FP);
+
+    for i = 1: length(positives)
+        if positives(i,3)
+            val.pos = val.pos + val.stepPos;
+        else
+            val.neg = val.neg + val.stepNeg;
+        end
+        x(i) = val.neg;
+        y(i) = val.pos;
+    end
+
+    figure
+    plot(x,y,[0 1],[0 1]);
+    xlim([0 1]);
+    ylim([0 1]);
+end
 
 
 end

@@ -5,9 +5,9 @@ skel = skeleton(skelPath,0);
 
 count = 0;
 com{1} = '';
-for i=1:length(skel.nodesAsStruct)
+for i=437:length(skel.nodesAsStruct)
     for j=1:length(skel.nodesAsStruct{i})
-        if strcmp(skel.nodesAsStruct{i}{j}.comment,'1')
+        if (strcmp(skel.nodesAsStruct{i}{j}.comment,'1') || strcmp(skel.nodesAsStruct{i}{j}.comment,'First Node'))
             count = count+1;
             skel.nodesAsStruct{i}{j}.comment = '';
         end
@@ -18,4 +18,5 @@ for i=1:length(skel.nodesAsStruct)
 end
 
 % active node is missing
-write(skel,['R:\Benjamin\GliaDetection\data\' tracing '\denseNew.nml']);
+skel.parameters.activeNode.id = '2929';
+write(skel,['R:\Benjamin\GliaDetection\data\' tracing '\denseWoCom.nml']);

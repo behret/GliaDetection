@@ -13,17 +13,26 @@ function featureVal = calcConcavity(PixelList,number)
 
             val = sliceVals(idx(j));
             coordsIn2D = PixelList(find(PixelList(:,i) == val),sort([mod(i+1,3)+1 mod(i,3)+1]));
-            %make sure theres only on cc 
+            %make sure theres only one cc 
             coordsIn2D = [coordsIn2D(:,1) - (min(coordsIn2D(:,1))-1)  coordsIn2D(:,2) - (min(coordsIn2D(:,2))-1)];
             BW = false(max(coordsIn2D(:,1)),max(coordsIn2D(:,2)));
             BW(sub2ind(size(BW),coordsIn2D(:,1),coordsIn2D(:,2))) = 1;
             cc = bwconncomp(BW);
-            if length(cc.PixelIdxList) > 1
-                 [x,y] = ind2sub(size(BW),cc.PixelIdxList{1,1});
+            if length(cc.PixelIdxList) > 1               
+                 %find biggest component
+                 compSize = 0;
+                 compIdx = 0;
+                 for comp = 1: length(cc.PixelIdxList)
+                     if length(cc.PixelIdxList{comp}) > compSize
+                         compSize = length(cc.PixelIdxList{comp});
+                         compIdx = comp;
+                     end
+                 end      
+                 [x,y] = ind2sub(size(BW),cc.PixelIdxList{compIdx});
                  coordsIn2D = [x y];
             end
+            
             if length(coordsIn2D) < 20 
-                %disp('skipped slice');
                 continue;
             end
             [K,v] = convhull(coordsIn2D(:,1),coordsIn2D(:,2));

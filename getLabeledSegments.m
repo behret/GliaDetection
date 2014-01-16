@@ -1,11 +1,11 @@
 function result = getLabeledSegments(skel,seg,bbox)
     %% set bbox
-    bboxIdx = find(cellfun(@(x) strcmp('Tree935',x),skel.names));
+    idxBboxTraced = find(cellfun(@(x) strcmp('bbox',x),skel.names));
     
     % +- 1 because seg has offset! if it does not, change!!!
-    bboxTraced = [min(skel.nodes{bboxIdx}(:,1))+1 max(skel.nodes{bboxIdx}(:,1))-1 ; ...
-        min(skel.nodes{bboxIdx}(:,2))+1 max(skel.nodes{bboxIdx}(:,2))-1 ; ...
-        min(skel.nodes{bboxIdx}(:,3))+1 max(skel.nodes{bboxIdx}(:,3))-1] ;
+    bboxTraced = [min(skel.nodes{idxBboxTraced}(:,1))+1 max(skel.nodes{idxBboxTraced}(:,1))-1 ; ...
+        min(skel.nodes{idxBboxTraced}(:,2))+1 max(skel.nodes{idxBboxTraced}(:,2))-1 ; ...
+        min(skel.nodes{idxBboxTraced}(:,3))+1 max(skel.nodes{idxBboxTraced}(:,3))-1] ;
 
     
     if any(bbox(:,1) - bboxTraced(:,1) > 0) || any(bbox(:,2) - bboxTraced(:,2) < 0)
@@ -29,7 +29,7 @@ function result = getLabeledSegments(skel,seg,bbox)
     nonGlia.ids = [];
     
     for i=1:length(skel.nodes)
-        if i == bboxIdx
+        if i == idxBboxTraced
             continue;
         end
         gliaFlag = any(gliaTrees == skel.thingIDs(i));
@@ -77,6 +77,7 @@ function result = getLabeledSegments(skel,seg,bbox)
     
     %% get segment pixel lists
 
+    %%%%%% this fucks up the indices!!!
     bboxTracedLocal = [transformCoords(bboxTraced(:,1)',bbox,0)' transformCoords(bboxTraced(:,2)',bbox,0)']; 
     bboxSeg = seg(bboxTracedLocal(1,1):bboxTracedLocal(1,2),bboxTracedLocal(2,1):bboxTracedLocal(2,2),bboxTracedLocal(3,1):bboxTracedLocal(3,2));   
     props = regionprops(bboxSeg,'PixelList');
