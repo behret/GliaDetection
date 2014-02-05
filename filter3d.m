@@ -1,20 +1,20 @@
-function filter3d(parameter, input, idx)
+function filter3d(parameter, input, idx,tracing)
 
 %filter3d: gives back the filtered image(s) imfeats of the input image I
 %the applied filter is specified by type and the siz parameter (two in the
 %case of the structure tensor), the filters are created with fspecial3
 
-profile on;
+%profile on;
 
 type = parameter.filter{idx}{1};
 sizs = parameter.filter{idx}{2};
 siz2s = parameter.filter{idx}{3};
 if strcmp(input,'raw')
-    load(parameter.cubeFile,'raw');
+    load(parameter.tracings(tracing).cubeFile,'raw');
 	I = single(raw);
 end
 if strcmp(input,'aff')
-    load(parameter.cubeFile,'classification');
+    load(parameter.tracings(tracing).cubeFile,'classification');
 	I = single(classification);
 end
 
@@ -137,10 +137,10 @@ if strcmp(type,'sortedeigenvaluesstructure') || strcmp(type, 'sortedeigenvaluesh
 	imfeats = cat(1,imfeats{:});
 end
 
-save([parameter.feature.root input type '.mat'], 'imfeats', '-v7.3');
+save([parameter.tracings(tracing).filterdCubesDir input type '.mat'], 'imfeats', '-v7.3');
 
-profile off;
-profsave(profile('info'), [parameter.feature.root 'profilesFilter\' input type  '/']);
+% profile off;
+% profsave(profile('info'), [parameter.tracings(tracing).filterdCubesDir 'profilesFilter\' input type  '/']);
 
 end
 

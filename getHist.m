@@ -1,4 +1,4 @@
-function f = getHist(glia,nonGlia,name,wr)
+function f = getHist(glia,nonGlia,name)
 
 nrBins = 20;
 minVal = min(min(glia),min(nonGlia));

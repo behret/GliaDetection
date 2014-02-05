@@ -3,10 +3,10 @@ function [ coords ] = transformCoords( point,bbox,local )
 %   Detailed explanation goes here
 
     if local
-        coords = point + bbox(:,1)' - [2 2 2];
+        coords = point + bbox(:,1)' - [1 1 1];
     end
     if ~local
-        coords = point - bbox(:,1)' + [2 2 2];
+        coords = point - bbox(:,1)' + [1 1 1];
     end
 end
 

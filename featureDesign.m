@@ -1,17 +1,17 @@
-function weights = featureDesign(parameter, segments, input, idx)
+function weights = featureDesign(parameter, segments, input, idx, tracing)
 
 %profile on;
 
 if idx ~= 0 
 	type = parameter.filter{idx}{1};
-	load([parameter.feature.root input type '.mat']);
+	load([parameter.tracings(tracing).filterdCubesDir input type '.mat']);
 else
 	if strcmp(input, 'raw')
-        load(parameter.cubeFile,'raw');
+        load(parameter.tracings(tracing).cubeFile,'raw');
 	    imfeats{1} = single(raw);
 	end
 	if strcmp(input, 'aff')
-        load(parameter.cubeFile,'classification');
+        load(parameter.tracings(tracing).cubeFile,'classification');
 	    imfeats{1} = single(classification);
 	end
 end

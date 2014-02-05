@@ -1,17 +1,11 @@
-function result = getLabeledSegments(skel,seg,bbox)
-    %% set bbox
-    idxBboxTraced = find(cellfun(@(x) strcmp('bbox',x),skel.names));
+function getLabeledSegments(parameter)
     
-    % +- 1 because seg has offset! if it does not, change!!!
-    bboxTraced = [min(skel.nodes{idxBboxTraced}(:,1))+1 max(skel.nodes{idxBboxTraced}(:,1))-1 ; ...
-        min(skel.nodes{idxBboxTraced}(:,2))+1 max(skel.nodes{idxBboxTraced}(:,2))-1 ; ...
-        min(skel.nodes{idxBboxTraced}(:,3))+1 max(skel.nodes{idxBboxTraced}(:,3))-1] ;
-
+for tracing = parameter.tracingsToUse;
     
-    if any(bbox(:,1) - bboxTraced(:,1) > 0) || any(bbox(:,2) - bboxTraced(:,2) < 0)
-        disp('seg too small!');
-    end 
-        
+    skel = skeleton(parameter.tracings(tracing).nml,0);
+    bbox = parameter.tracings(tracing).bbox;
+    load(parameter.tracings(tracing).cubeFile,'seg');
+    
     %% get tree ids
 
     gliaTrees = [];
@@ -23,19 +17,21 @@ function result = getLabeledSegments(skel,seg,bbox)
             end
         end
     end
-  
+    
+    idxBbox = find(cellfun(@(x) strcmp('bbox',x),skel.names));
+    
     %% get segment ids
     glia.ids = [];
     nonGlia.ids = [];
     
     for i=1:length(skel.nodes)
-        if i == idxBboxTraced
+        if i == idxBbox
             continue;
         end
         gliaFlag = any(gliaTrees == skel.thingIDs(i));
         for j=1:size(skel.nodes{i})
-            %restrict on dense bbox, switch to local coords
-            if(any(bboxTraced(:,1)' - skel.nodes{i}(j,1:3) > 0) || any(bboxTraced(:,2)' - skel.nodes{i}(j,1:3) < 0))
+            %restrict on bbox, switch to local coords
+            if(any(bbox(:,1)' - skel.nodes{i}(j,1:3) > 0) || any(bbox(:,2)' - skel.nodes{i}(j,1:3) < 0))
                 continue;
             end
             localCoords = transformCoords(skel.nodes{i}(j,1:3),bbox,0);
@@ -71,34 +67,39 @@ function result = getLabeledSegments(skel,seg,bbox)
     glia.ids = unique(glia.ids);
     nonGlia.ids = unique(nonGlia.ids);
 
+    
     commonIds = intersect(glia.ids,nonGlia.ids);
     glia.ids = setdiff(glia.ids,commonIds);
     nonGlia.ids = setdiff(nonGlia.ids,commonIds);
     
-    %% get segment pixel lists
+    nonGlia.ids(nonGlia.ids == 0) = [];
 
-    %%%%%% this fucks up the indices!!!
-    bboxTracedLocal = [transformCoords(bboxTraced(:,1)',bbox,0)' transformCoords(bboxTraced(:,2)',bbox,0)']; 
-    bboxSeg = seg(bboxTracedLocal(1,1):bboxTracedLocal(1,2),bboxTracedLocal(2,1):bboxTracedLocal(2,2),bboxTracedLocal(3,1):bboxTracedLocal(3,2));   
-    props = regionprops(bboxSeg,'PixelList');
-    glia.PixelLists = props(glia.ids);
-    nonGlia.PixelLists = props(nonGlia.ids);
+    
+    %% get segment pixel lists
+    
+    % delete one of Pixel lists for pred..?
+    props = regionprops(seg,'PixelIdxList');
+    glia.PixelIdxLists = props(glia.ids);
+    nonGlia.PixelIdxLists = props(nonGlia.ids);
     
      
-    %restructure and resolve XY swap
+    %restructure
     for i=1:length(glia.ids)
-        result(i).id = glia.ids(i);
-        result(i).PixelList = [glia.PixelLists(i).PixelList(:,2) glia.PixelLists(i).PixelList(:,1) glia.PixelLists(i).PixelList(:,3)];
-        result(i).label = 1;
+        segments(i).PixelIdxList = glia.PixelIdxLists(i).PixelIdxList;
+        segments(i).id = glia.ids(i);
+        segments(i).label = 1;
     end 
     for i=1:length(nonGlia.ids)
-        result(length(glia.ids)+i).id = nonGlia.ids(i);
-        result(length(glia.ids)+i).PixelList = [nonGlia.PixelLists(i).PixelList(:,2) nonGlia.PixelLists(i).PixelList(:,1) nonGlia.PixelLists(i).PixelList(:,3)];
-        result(length(glia.ids)+i).label = 0;
+        segments(length(glia.ids)+i).PixelIdxList = nonGlia.PixelIdxLists(i).PixelIdxList;
+        segments(length(glia.ids)+i).id = nonGlia.ids(i);
+        segments(length(glia.ids)+i).label = 0;
     end
 
+    save(parameter.tracings(tracing).segmentFile,'segments','-v7.3');
+    clearvars -except parameter tracing;
+    
 %%%%% analysis missed segments
-
+end
     
 end
 
