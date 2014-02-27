@@ -5,6 +5,9 @@ for tracing = parameter.tracingsToUse;
     skel = skeleton(parameter.tracings(tracing).nml,0);
     bbox = parameter.tracings(tracing).bbox;
     load(parameter.tracings(tracing).cubeFile,'seg');
+    if parameter.useGraph
+        load(parameter.tracings(tracing).graphFile);
+    end
     
     %% get tree ids
 
@@ -66,33 +69,38 @@ for tracing = parameter.tracingsToUse;
     
     glia.ids = unique(glia.ids);
     nonGlia.ids = unique(nonGlia.ids);
-
     
     commonIds = intersect(glia.ids,nonGlia.ids);
     glia.ids = setdiff(glia.ids,commonIds);
     nonGlia.ids = setdiff(nonGlia.ids,commonIds);
-    
+    % exclude 0
     nonGlia.ids(nonGlia.ids == 0) = [];
 
     
     %% get segment pixel lists
     
-    % delete one of Pixel lists for pred..?
     props = regionprops(seg,'PixelIdxList');
     glia.PixelIdxLists = props(glia.ids);
     nonGlia.PixelIdxLists = props(nonGlia.ids);
     
+    %if graph is not used, make sure no segment gets excluded
+    if ~parameter.useGraph
+        edgesNew = [glia.ids nonGlia.ids];
+    end
      
     %restructure
     for i=1:length(glia.ids)
         segments(i).PixelIdxList = glia.PixelIdxLists(i).PixelIdxList;
         segments(i).id = glia.ids(i);
         segments(i).label = 1;
+        segments(i).inGraph = any(unique(edgesNew) == glia.ids(i));
+
     end 
     for i=1:length(nonGlia.ids)
         segments(length(glia.ids)+i).PixelIdxList = nonGlia.PixelIdxLists(i).PixelIdxList;
         segments(length(glia.ids)+i).id = nonGlia.ids(i);
         segments(length(glia.ids)+i).label = 0;
+        segments(length(glia.ids)+i).inGraph = any(unique(edgesNew) == nonGlia.ids(i));
     end
 
     save(parameter.tracings(tracing).segmentFile,'segments','-v7.3');
@@ -100,6 +108,5 @@ for tracing = parameter.tracingsToUse;
     
 %%%%% analysis missed segments
 end
-    
 end
 

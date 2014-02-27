@@ -1,13 +1,13 @@
 function [rates, pred ] = trainAndTest( featureMat,labels,partition,param,method )
 
 %% prepare data
-if isfield(partition,'trainCut')  
-    train = featureMat([partition.train ; partition.trainCut],:);
-    labelsTrain = labels([partition.train ; partition.trainCut]);
-else
+% if isfield(partition,'trainCut')  
+%     train = featureMat([partition.train ; partition.trainCut],:);
+%     labelsTrain = labels([partition.train ; partition.trainCut]);
+% else
     train = featureMat(partition.train,:);
     labelsTrain = labels(partition.train);
-end
+% end
 test =  featureMat(partition.test,:);  
 labelsTest = labels(partition.test);
 

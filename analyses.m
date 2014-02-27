@@ -1,3 +1,31 @@
+%% com big all
+
+figure 
+hold on
+
+scatter(allAll(:,2),allAll(:,1),30,[1 0 0],'fill');
+scatter(bigBig(:,2),bigBig(:,1),30,[0 1 0],'fill');
+scatter(varyAll(:,2),varyAll(:,1),30,[0 0 1],'fill');
+scatter(allAdj(:,2),allAdj(:,1),30,[0 1 1],'fill');
+
+%legend('train big, test big' , 'train big, test all')
+
+%% compare testBig/testAll
+
+params = {1:4 1:15 1:15};
+
+figure 
+hold on
+
+scatter(rateMat(combis(:,1) == 1,2),rateMat(combis(:,1) == 1,1),30,[0.5 0 1],'fill');
+scatter(rateMat(combis(:,1) == 2,2),rateMat(combis(:,1) == 2,1),30,[1 0 0],'fill');
+scatter(rateMat(combis(:,1) == 3,2),rateMat(combis(:,1) == 3,1),30,[0 1 1],'fill');
+scatter(rateMat(combis(:,1) == 4,2),rateMat(combis(:,1) == 4,1),30,[0 0 1],'fill');
+legend('10','20','30','40','Location','SouthEast');
+
+scatter(ram(:,2),ram(:,1),30,[1 0 0],'fill');
+scatter(rateMat(:,2),rateMat(:,1),30,[0 0 1],'fill');
+
 %% % of glia left after size cutoff
 
 
@@ -25,24 +53,41 @@ ylabel('% True positives');
 legend('<3' , '3<7','>7');
 
 
-%% adj, size cutoff colorcoded
+%% size cutoff colorcoded
 
 % get combis from paramSearch
 
 figure 
 hold on;
 
-scatter(matNoAdj(combis(:,1) > 0.19,2),matNoAdj(combis(:,1) > 0.19,1),30,[0.5 0 1],'fill');
-scatter(matNoAdj(combis(:,1) > 0.24,2),matNoAdj(combis(:,1) > 0.24,1),30,[1 0 0],'fill');
-scatter(matNoAdj(combis(:,1) > 0.27,2),matNoAdj(combis(:,1) > 0.27,1),30,[0 1 1],'fill');
-scatter(matNoAdj(combis(:,1) > 0.31,2),matNoAdj(combis(:,1) > 0.31,1),30,[0 0 1],'fill');
-scatter(matNoAdj(combis(:,1) > 0.33,2),matNoAdj(combis(:,1) > 0.33,1),30,[0 1 0],'fill');
+scatter(rateMat(combis(:,1) == params{1}(1),2),rateMat(combis(:,1) == params{1}(1),1),30,[0.5 0 1],'fill');
+scatter(rateMat(combis(:,1) == params{1}(2),2),rateMat(combis(:,1) == params{1}(2),1),30,[1 0 0],'fill');
+scatter(rateMat(combis(:,1) == params{1}(3),2),rateMat(combis(:,1) == params{1}(3),1),30,[0 1 1],'fill');
+scatter(rateMat(combis(:,1) == params{1}(4),2),rateMat(combis(:,1) == params{1}(4),1),30,[0 0 1],'fill');
+scatter(rateMat(combis(:,1) == params{1}(5),2),rateMat(combis(:,1) == params{1}(5),1),30,[0 1 0],'fill');
+xlim([0 0.2])
+
+xlabel('False positive rate');
+ylabel('True positive rate');
+title('Cut off x% of smalles segments');
+legend('0','10','20','30','40','Location','SouthEast');
+
+%% adj colorcoded
+
+figure 
+hold on;
+
+scatter(rateMat(combis(:,4) == params{4}(1),2),rateMat(combis(:,4) == params{4}(1),1),30,[0.5 0 1],'fill');
+scatter(rateMat(combis(:,4) == params{4}(2),2),rateMat(combis(:,4) == params{4}(2),1),30,[1 0 0],'fill');
+scatter(rateMat(combis(:,4) == params{4}(3),2),rateMat(combis(:,4) == params{4}(3),1),30,[0 1 1],'fill');
+scatter(rateMat(combis(:,4) == params{4}(4),2),rateMat(combis(:,4) == params{4}(4),1),30,[0 0 1],'fill');
+scatter(rateMat(combis(:,4) == params{4}(5),2),rateMat(combis(:,4) == params{4}(5),1),30,[0 1 0],'fill');
 
 
 xlabel('% False positives');
 ylabel('% True positives');
-title('Cut off x% of smalles segments');
-legend('10','20','30','40','50','Location','SouthEast');
+title('C adjustment ratios');
+legend('0','1','2','3','4','Location','SouthEast');
 
 
 %% adj/noAdj comparison
@@ -57,14 +102,6 @@ ylabel('% True positives');
 legend('Adjusted C' , 'Same C');
 
 
-%% get segment and voxel numbers
-
-load(parameter.tracings(2).segmentFile);
-labels = cell2mat({segments.label});
-ratioSegs = sum(labels)/sum(labels == 0);
-
-sizs = cellfun(@length,{segments.PixelIdxList});
-ratioVox = sum(sizs(labels == 1))/sum(sizs(labels == 0));
 
 
 %% different C adjustments
@@ -79,32 +116,17 @@ scatter(adjWrong(:,2),adjWrong(:,1),20,[0 0 1]);
 
 
 %% scatter good param combis
+%get combis with indexes
+params = {1:5 1:15 1:15};
 
-load('G:\Benjamin\data\testResult');
+goodCombis = find(rates(:,1) > 0.4 & rates(:,2) < 0.03);
+vals = combis(goodCombis,:);
 
-
-
-rates = reshape(rates,5,15,15);
-
-filterFun = @(x) x(1) > 0.47 && x(2) < 0.05;
-filteredRates = cellfun(filterFun,rates);
-[cutoffSize,sig,c] = ind2sub(size(filteredRates),find(filteredRates));
 figure
-scatter3(sig,c,cutoffSize);
-xlabel('sigma');
-ylabel('C');
-zlabel('cutoff size');
-
-
-bb = cell2mat(rates');
-scatter(bb(:,4),bb(:,1));
-xlim([0 0.5]);
-ylim([0 0.9]);
-ylabel('True positive rate');
-xlabel('False positive rate');
-title('Parameter search results');
-
-
+scatter3(vals(:,1),vals(:,2),vals(:,3));
+xlabel('cutoff size');
+ylabel('sigma');
+zlabel('C');
 
 
 

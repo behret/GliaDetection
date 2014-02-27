@@ -1,19 +1,18 @@
-function [rates] = crossVal(featureMat,labels,param,kfold,method)
+function [rates,predAll] = crossVal(featureMat,labelStruct,param,kfold,method)
 
 
 %% prepare data
 
 % cut off featureMat at specified size
-sizeFlag = featureMat(:,1) > param(1);
-labels = [labels  sizeFlag];
-partition = getPartition(labels,kfold);
-
+partition = getPartition(labelStruct,param,featureMat(:,1),kfold);
+labels = labelStruct.labels;
 %% training and prediction
 rates = [];
+predAll = zeros(length(featureMat),3);
 for i = 1:kfold     
-    rate = trainAndTest(featureMat,labels,partition(i),param,method);
-    rates = [rates ; rate];        
+    [rate,pred] = trainAndTest(featureMat,labels,partition(i),param,method);
+    rates = [rates ; rate];     
+    predAll(partition(i).test,:) = pred;
 end
-
 
 end

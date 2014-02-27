@@ -16,7 +16,7 @@ if param(1) ~= 0
     partition.test = setdiff(partition.test,partition.testCut);
 end
 %% train test plot save
-% [rates,pred] = trainAndTest(featureMat,labels,partition,param,method );
+[rates,pred] = trainAndTest(featureMat,labels,partition,param,method );
 
 % % include cutoff segments for evaluation
 % if isfield(partition,'testCut') 
@@ -27,7 +27,7 @@ end
 % RocAndPr(pred,labelsForPlots);
 
 % %% analyze graph
-[r,pred] = crossVal(featureMat,labelStruct,param,4,'matlab');
+% [r,pred] = crossVal(featureMat,labelStruct,param,4,'matlab');
 % analyzeGraph(parameter,pred,labelStruct,partition);
 % 
 % 
@@ -39,7 +39,7 @@ featTest = featureMat(partition.test);
 featTest = featureMat(:,1);
 
 
-%BETTER: DO QUAN OVER TP??
+BETTER: DO QUAN OVER TP??
 tpIdx = pred(:,1) == 1 & pred(:,3) == 1;
 quan = quantile(featTest(tpIdx,1),9);
 quan2 = quantile(featTest(:,1),9);

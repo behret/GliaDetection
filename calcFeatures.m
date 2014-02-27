@@ -1,4 +1,4 @@
-function [ featureMat,labels ] = calcFeatures(parameter)
+function calcFeatures(parameter)
 
 % calculate shape and intensity features
 for i = parameter.tracingsToUse
@@ -10,44 +10,43 @@ for i = parameter.tracingsToUse
     matIntensity = miniIntensity(parameter,segments,i);
 
     matCombined{i} = cat(2,matShape,matIntensity);
-    segLabels{i} = cell2mat({segments.label});
+    labels{i} = cell2mat({segments.label})';
+    ids{i} = [repmat(i,1,length(segments)) ; cell2mat({segments.id})]';
+    inGraph{i} = cell2mat({segments.inGraph})';
+
 end
 
 matAll = cat(1,matCombined{:});
-labels = cat(2,segLabels{:});
+
+labelStructAll.labels = cat(1,labels{:});
+labelStructAll.ids = cat(1,ids{:});
+labelStructAll.inGraph = cat(1,inGraph{:});
 
 
 % scale features  
-featureMat = zeros(size(matAll));
+% for prediction on whole data: scale all features together!!
+featureMatAll = zeros(size(matAll));
 for feat = 1:size(matAll,2)
-    featureMat(:,feat) = (matAll(:,feat)-min(matAll(:,feat))) / ...
+    featureMatAll(:,feat) = (matAll(:,feat)-min(matAll(:,feat))) / ...
         (max(matAll(:,feat)) - min(matAll(:,feat)));
 end
 
 % post processing
 delList = [];
-for i = 1:size(featureMat,2)
-    if any(isnan(featureMat(:,i)))
+for i = 1:size(featureMatAll,2)
+    if any(isnan(featureMatAll(:,i)))
         delList(end+1) = i;
     end
 end
-featureMat(:,delList) = [];
+featureMatAll(:,delList) = [];
 
+% divide into featureMat for parameter search and evalMat for getting rate
+% estimates
+partition = getPartition(labelStructAll,4);
+partition = partition(1);
 
-% split in param search and evaluation file 
-% (to avoid hyperparameter overfitting)
-glia = featureMat(labels == 1,:);
-nonGlia = featureMat(labels == 0,:);
-
-idxEval.glia = randsample(length(glia),floor(length(glia)/4));
-idxParam.glia = setdiff(1:length(glia),idxEval.glia);
-idxEval.nonGlia = randsample(length(nonGlia),floor(length(nonGlia)/4));
-idxParam.nonGlia = setdiff(1:length(nonGlia),idxEval.nonGlia);
-
-featureMatEval = [glia(idxEval.glia,:) ; nonGlia(idxEval.nonGlia,:)];
-labelsEval = [ones(length(idxEval.glia),1) ; zeros(length(idxEval.nonGlia),1)];
-featureMatParam = [glia(idxParam.glia,:) ; nonGlia(idxParam.nonGlia,:)];
-labelsParam = [ones(length(idxParam.glia),1) ; zeros(length(idxParam.nonGlia),1)];
+featureMat = featureMatAll(partition.train,:);
+labelStruct= divideLabelStruct( labelStructAll, partition.train );
 
 save(parameter.featureFile,'-v7.3');
 

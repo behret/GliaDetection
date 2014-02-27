@@ -14,7 +14,7 @@ time = toc;
 disp(['Calculated Features, time: ' num2str(time/60) ' minutes']);
 
 tic
-params = miniParam(parameter);
+miniParam(parameter);
 time = toc;
 disp(['Finished parameter search: '  num2str(time/60) ' minutes']);
 

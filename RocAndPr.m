@@ -1,6 +1,7 @@
-function RocAndPr( pred, labelStruct )
+function RocAndPr( pred, labels )
 
-labels  = labelStruct.testAll;
+
+
 
 % ROC and PR
 [a b] = sort(pred(:,2),'descend');
@@ -26,7 +27,9 @@ for i = 1: length(predSorted)
 
     %PR  
     pr.tp = pr.tp + predSorted(i,3);
+    %recall
     x(2,i) = pr.tp/pr.total;
+    %precision
     y(2,i) = pr.tp/i;
 end
 

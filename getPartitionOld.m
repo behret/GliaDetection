@@ -1,27 +1,24 @@
-function [partition] = getPartition(labelStruct,param,sizes,kfold)
+function [partition] = getPartition(labelStruct,kfold)
+
+
+% isCut is fucked up ... would recursively call itself..change!
+
 
 
 %% prepare data
 
-
 labels = labelStruct.labels;
-labelStruct.sizeFlag = sizes >= param(1);
-isCut = any(labelStruct.sizeFlag == 0);
+if ~isfield(labelStruct,'sizeFlag')
+    labelStruct.sizeFlag = ones(size(labels));
+end
+isCut = (labelStruct.sizeFlag == 0);
 
 % if there is a cutoff, distribute the cut off segments evenly over the
 % partitions (for global rate calculation)
 if isCut
-    labelStructCut = divideLabelStruct(labelStruct,imcomplement(labelStruct.sizeFlag));
-    paramCut = param;
-    paramCut(1) = 0;
-    sizesCut = sizes(imcomplement(labelStruct.sizeFlag));
-    partitionCut = getPartition(labelStructCut,paramCut,sizesCut,kfold);
-    %get global correspondances 
-    globalCorr = find(labelStruct.sizeFlag == 0);
-    for i = 1:length(partitionCut)
-        partitionCut(i).test = globalCorr(partitionCut(i).test);
-        partitionCut(i).train = globalCorr(partitionCut(i).train);
-    end      
+    labelStructCut = labelStruct;
+    labelStructCut.sizeFlag = imcomplement(labelStruct.sizeFlag);
+    partitionCut = getPartition(labelStructCut,kfold);
 end
 
 % prepare partition indices
