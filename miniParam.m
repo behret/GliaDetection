@@ -8,11 +8,10 @@ function miniParam(parameter)
 
 matlabpool 8
 tic
-params = paramSearch(parameter);
+paramSearch(parameter);
 toc
 matlabpool close
 
-% load(parameter.testResultFile);
 end
 
 

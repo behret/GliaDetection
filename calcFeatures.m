@@ -3,32 +3,36 @@ function calcFeatures(parameter)
 % calculate shape and intensity features
 for i = parameter.tracingsToUse
     load(parameter.tracings(i).segmentFile);
-    
-    matShape = miniShape(parameter,segments,i);
-    
-    %miniEdges(parameter,i);
-    matIntensity = miniIntensity(parameter,segments,i);
 
+    miniFilter(parameter,i);
+    matShape = miniShape(parameter,segments,i);
+    matIntensity = miniIntensity(parameter,segments,i);  
+    
     matCombined{i} = cat(2,matShape,matIntensity);
     labels{i} = cell2mat({segments.label})';
     ids{i} = [repmat(i,1,length(segments)) ; cell2mat({segments.id})]';
-    inGraph{i} = cell2mat({segments.inGraph})';
-
+    if parameter.useGraph
+        inGraph{i} = cell2mat({segments.inGraph})';
+    end    
+    save([parameter.featureFile num2str(i)],'-v7.3');
 end
 
 matAll = cat(1,matCombined{:});
 
 labelStructAll.labels = cat(1,labels{:});
 labelStructAll.ids = cat(1,ids{:});
-labelStructAll.inGraph = cat(1,inGraph{:});
-
+if parameter.useGraph
+    labelStructAll.inGraph = cat(1,inGraph{:});
+end
 
 % scale features  
 % for prediction on whole data: scale all features together!!
 featureMatAll = zeros(size(matAll));
 for feat = 1:size(matAll,2)
-    featureMatAll(:,feat) = (matAll(:,feat)-min(matAll(:,feat))) / ...
-        (max(matAll(:,feat)) - min(matAll(:,feat)));
+    scaleVals(feat,1) = min(matAll(:,feat));
+    scaleVals(feat,2) = max(matAll(:,feat)) - min(matAll(:,feat));
+    featureMatAll(:,feat) = (matAll(:,feat)-scaleVals(feat,1)) / ...
+        scaleVals(feat,2);
 end
 
 % post processing

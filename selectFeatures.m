@@ -1,34 +1,35 @@
 function [ result ] = selectFeatures( SVMStruct, sigma, C )
 
-C = C(1);
+C = unique(C);
 
-%get bound SVs (sth wrong???)
-sv = SVMStruct.SupportVectors;
-bsv = sv(abs(SVMStruct.Alpha) == C,:);  
+%get margin SVs
+SVs = SVMStruct.SupportVectors;
+if length(C) == 1
+    marginSVs = SVs(abs(SVMStruct.Alpha) ~= C,:);
+else
+    marginSVs = SVs(C(1) ~= abs(SVMStruct.Alpha) & C(2) ~= abs(SVMStruct.Alpha)   ,:);
+end
 
 
-for i=1:length(bsv)
+for i=1:length(marginSVs)
     
     grad = 0;
     
-    for vec = 1:length(sv)
-        % *sign...???
+    for vec = 1:length(SVs)
         grad = grad + SVMStruct.Alpha(vec)*sign(SVMStruct.Alpha(vec)) * ...
-            (2*(sv(vec,:) - bsv(i,:))/sigma) * ...
-            exp(- pdist([sv(vec,:) ; bsv(i,:)]) / sigma);
+            (2*(SVs(vec,:) - marginSVs(i,:))/sigma) * ...
+            exp(- norm(SVs(vec,:) - marginSVs(i,:))^2 / sigma);
     end    
 
     
-    for j = 1:size(sv,2)
+    for j = 1:size(SVs,2)
         
-        e = zeros(1,size(sv,2));
+        e = zeros(1,size(SVs,2));
         e(j) = 1;
         
-        alpha(i,j) =  min( acos( grad* e'/ norm(grad)) );
+        alpha(i,j) =  min( pi-acos( grad* e'/ norm(grad)),acos( grad* e'/ norm(grad)) );
         
-    end
-
-    
+    end   
     
 end
 

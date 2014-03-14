@@ -28,10 +28,14 @@ function [ cube ] = visualizeSegment(PixelList,raw,play,issf)
     end
     
     if(issf)
+        figure
         issf = isosurface(logical(cube));
         k = patch(issf);
         set(k, 'FaceColor', [0 1 0], 'EdgeColor', 'none');
-        view(3);
+        xlim([0 200])
+        ylim([0 200])
+        zlim([0 60])        
+        view([-70 45]);
         daspect([28 28 11.3]);
         grid on;
         alpha(.7);

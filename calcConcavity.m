@@ -1,4 +1,5 @@
 function featureVal = calcConcavity(PixelList,number)
+
     for i = 1:3
 
         sliceVals = unique(PixelList(:,i));
@@ -48,11 +49,7 @@ function featureVal = calcConcavity(PixelList,number)
 
     end
     featureVal = sum(ratios)/sum(ratios ~= 0);
+
+
 end
 
-
-
-% concavity makes no sense for projection...        
-%             projOnPlane = projPointOnPlane(PixelList,[zeros(1,3) COEFF(:,1)' COEFF(:,2)']);
-%             coordsIn2D = projOnPlane*COEFF(:,1:2);
-%             coordsIn2D = unique(round(coordsIn2D),'rows'); 

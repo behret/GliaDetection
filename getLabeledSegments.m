@@ -1,5 +1,8 @@
 function getLabeledSegments(parameter)
-    
+
+% merges should be excluded in general...not only glia nonGlia mergers
+% trees in oxalis would have to be merged..
+
 for tracing = parameter.tracingsToUse;
     
     skel = skeleton(parameter.tracings(tracing).nml,0);
@@ -14,7 +17,7 @@ for tracing = parameter.tracingsToUse;
     gliaTrees = [];
     for i=1:length(skel.nodesAsStruct)
         for j=1:length(skel.nodesAsStruct{i})
-            if strcmp(skel.nodesAsStruct{i}{j}.comment,'glia') || strcmp(skel.nodesAsStruct{i}{j}.comment,'oligoden') 
+            if strcmp(skel.nodesAsStruct{i}{j}.comment,'glia') || strcmp(skel.nodesAsStruct{i}{j}.comment,'Glia') 
                 gliaTrees(end+1) = skel.thingIDs(i);
                 continue;
             end
@@ -45,7 +48,9 @@ for tracing = parameter.tracingsToUse;
             end           
         end
     end
- 
+    
+    
+
     % resolve id ambiguities if ratio is small enough
     commonIds = intersect(glia.ids,nonGlia.ids);
     for i=1:length(commonIds)
@@ -103,7 +108,8 @@ for tracing = parameter.tracingsToUse;
         segments(length(glia.ids)+i).inGraph = any(unique(edgesNew) == nonGlia.ids(i));
     end
 
-    save(parameter.tracings(tracing).segmentFile,'segments','-v7.3');
+    totalNrSegs = length(unique(seg));
+    save(parameter.tracings(tracing).segmentFile,'segments','commonIds','totalNrSegs','-v7.3');
     clearvars -except parameter tracing;
     
 %%%%% analysis missed segments

@@ -1,0 +1,31 @@
+
+slice = 90;
+
+figure 
+hold on
+subplot('Position', [0, .5, .5, .5])
+imshow(uint8(raw(:,:,slice)));
+%saveFig('segErrorRaw')
+freezeColors
+
+
+
+subplot('Position', [.5, .5, .5, .5])
+imshow(seg(:,:,slice));
+vals = unique(seg);
+colormap(hsv(length(vals)));
+cmap = colormap;
+cmap = cmap(randsample(1:length(cmap),length(cmap)),:);
+cmap(1,:) = [0 0 0];
+colormap(cmap);
+%saveFig('segErrorSeg')
+freezeColors
+
+subplot('Position', [0, 0, .5, .5]);
+imshow(classification(:,:,slice));
+%saveFig('segErrorClass')
+
+subplot('Position', [.5, 0, .5, .5]);
+imshow(cubeGlia(:,:,slice));
+%saveFig('segErrorGlia')
+
