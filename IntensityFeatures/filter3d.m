@@ -4,7 +4,6 @@ function filter3d(parameter, input, idx,tracing)
 %the applied filter is specified by type and the siz parameter (two in the
 %case of the structure tensor), the filters are created with fspecial3
 
-%profile on;
 
 type = parameter.filter{idx}{1};
 sizs = parameter.filter{idx}{2};
@@ -138,9 +137,6 @@ if strcmp(type,'sortedeigenvaluesstructure') || strcmp(type, 'sortedeigenvaluesh
 end
 
 save([parameter.tracings(tracing).filterdCubesDir input type '.mat'], 'imfeats', '-v7.3');
-
-% profile off;
-% profsave(profile('info'), [parameter.tracings(tracing).filterdCubesDir 'profilesFilter\' input type  '/']);
 
 end
 

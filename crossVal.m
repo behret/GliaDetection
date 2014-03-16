@@ -12,7 +12,6 @@ for i = 1:kfold
     prediction{i} = trainAndTest(featureMat,labels,partition(i),param,method);
 end
 
-
 %% calculate rates
 
 for i = 1:kfold 

@@ -1,6 +1,6 @@
 function varyFeatures
 parameter = setParam;
-featureNums = [40];  
+featureNums = [158 120 90 60 40];  
 
 matlabpool 8
 for i = 1:length(featureNums)
@@ -14,5 +14,3 @@ end
 matlabpool close
 generateSelectionPlot
 saveFig('featureSelectionGraph');
-%print(f,'-dpdf','C:\Users\behret\Dropbox\BachelorArbeit\featureSelectionPlot');
-

@@ -1,5 +1,6 @@
 function featureVal = calcConcavity(PixelList,number)
 
+    try
     for i = 1:3
 
         sliceVals = unique(PixelList(:,i));
@@ -8,7 +9,6 @@ function featureVal = calcConcavity(PixelList,number)
             sums(j) = sum(PixelList(:,i) == sliceVals(j));
         end
         [sorted,idx] = sort(sums,'descend');    
-        %try random again..?
         number = min(number,length(sliceVals));
         for j=1:number
 
@@ -49,7 +49,10 @@ function featureVal = calcConcavity(PixelList,number)
 
     end
     featureVal = sum(ratios)/sum(ratios ~= 0);
-
+    catch
+        disp('skipped');
+        featureVal = 0.7;
+    end
 
 end
 

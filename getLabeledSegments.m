@@ -1,8 +1,5 @@
 function getLabeledSegments(parameter)
 
-% merges should be excluded in general...not only glia nonGlia mergers
-% trees in oxalis would have to be merged..
-
 for tracing = parameter.tracingsToUse;
     
     skel = skeleton(parameter.tracings(tracing).nml,0);
@@ -48,8 +45,6 @@ for tracing = parameter.tracingsToUse;
             end           
         end
     end
-    
-    
 
     % resolve id ambiguities if ratio is small enough
     commonIds = intersect(glia.ids,nonGlia.ids);

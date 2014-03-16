@@ -1,4 +1,4 @@
-function [ output_args ] = analyzeGraph( parameter,pred,ids,wholeCubeFlag)
+function [ segments ] = analyzeGraph( parameter,pred,ids,wholeCubeFlag)
 
 pred(:,1:4) = [pred double(ids)];
 
@@ -26,76 +26,89 @@ for i = 1:length(segments)
     edges = graphData(rows,:);
     neighbors = setdiff(unique([edges(:,1) ; edges(:,2)]),segments(i).id);
     segments(i).neighbors = neighbors;
+    count = 0;
     neighborMat = zeros(1,5);
     for j = 1:length(neighbors) 
         if ~isempty(pred(pred(:,4) == neighbors(j),1:2))
+            count = count+1;
             [rows,cols] = ind2sub(size(edges),find(edges == neighbors(j)));
             connProb = edges(rows(1),3);     %there might be duplicates..take first one           
             predNeighbor = pred(pred(:,4) == neighbors(j),1:2);              
             labelNeighbor = pred(pred(:,4) == neighbors(j),3);                
-            neighborMat(end+1,1:5) = [neighbors(j) connProb labelNeighbor(1) predNeighbor(1,:)];
+            neighborMat(count,1:5) = [neighbors(j) connProb labelNeighbor(1) predNeighbor(1,:)];
         end
     end
     segments(i).neighborMat = neighborMat; 
-    segments(i).nrGliaNeighbors  = sum(neighborMat(:,3) == 1);
-    pNon = segments(i).neighborMat(neighborMat(:,4) == 0,2);
-    segments(i).pNonNeighbor = max(pNon);            
-    if any(neighborMat(:,4));
-        pGlia = segments(i).neighborMat(neighborMat(:,4) == 1,2);
-        segments(i).pGliaNeighbor = max(pGlia);
-    else
-        segments(i).pGliaNeighbor = 0;
-    end
 
-    %get indices for further analysis: [TP FN TN FP]
+    %get indices for further analysis: [TP FN TN FP G NG]
     if segments(i).label == 1 && segments(i).pred(1) == 1
+        idxMat(i,3) = 1;
         idxMat(i,1) = 1;
     elseif segments(i).label == 1 && segments(i).pred(1) == 0
-        idxMat(i,2) = 1;
-    elseif segments(i).label == 0 && segments(i).pred(1) == 0
-        idxMat(i,3) = 1;    
-    elseif segments(i).label == 0 && segments(i).pred(1) == 1
         idxMat(i,4) = 1;
+        idxMat(i,1) = 1;
+    elseif segments(i).label == 0 && segments(i).pred(1) == 0
+        idxMat(i,5) = 1;
+        idxMat(i,2) = 1;
+    elseif segments(i).label == 0 && segments(i).pred(1) == 1
+        idxMat(i,6) = 1;
+        idxMat(i,2) = 1;
     end
 end
 
 
-%% edge numbers
 
-neighborMats = {segments.neighborMat};
-labels = cell2mat({segments.label});
-numEdges = cellfun(@length,neighborMats);
-mean(numEdges(labels == -1))
 
 %% analyse connections
-nrGliaNeighbors = cell2mat({segments.nrGliaNeighbors});
-pGliaNeighbor = cell2mat({segments.pGliaNeighbor});
-pNonNeighbor = cell2mat({segments.pNonNeighbor});
 
-for bin = [1 2 3 4]   
-    gliaNeighborRate(bin,1) = sum(nrGliaNeighbors(idxMat(:,bin) == 1) ~= 0) /sum(idxMat(:,bin) == 1);
-    gliaNeighborRate(bin,2) = sum(pGliaNeighbor(idxMat(:,bin) == 1) ~= 0)/sum(idxMat(:,bin) == 1);   
-    gliaNeighborRate(bin,3) = sum(nrGliaNeighbors(idxMat(:,bin) == 1) > 1)/sum(idxMat(:,bin) == 1);
-%     gliaNeighborRate(bin,4) = sum(pGliaNeighbor(idxMat(:,bin) == 1) > 0.7)/sum(idxMat(:,bin) == 1);   
-%     gliaNeighborRate(bin,4) = sum(pGliaNeighbor(idxMat(:,bin) == 1) > 0.3)/sum(idxMat(:,bin) == 1);           
-%     gliaNeighborRate(bin,5) = sum(pGliaNeighbor(idxMat(:,bin) == 1) > 0.3 & pNonNeighbor(idxMat(:,bin) == 1) < 0.7)/sum(idxMat(:,bin) == 1);
+for i = 1:length(segments)
+    gliaIdx = segments(i).neighborMat(:,4) == 1;
+    nonGliaIdx = segments(i).neighborMat(:,4) == 0;
+    
+    if length(segments(i).neighborMat(gliaIdx,5)) > 0 
+        plotData(i,1) = 1;
+    else
+        plotData(i,1) = 0; 
+    end
+    
+    if mean(segments(i).neighborMat(gliaIdx,2)) > .3
+        plotData(i,2) = 1;
+    else
+        plotData(i,2) = 0; 
+    end
+    
+    if sum(segments(i).neighborMat(:,4))/length(segments(i).neighborMat(:,4)) > 0.2
+        plotData(i,3) = 1;
+    else
+        plotData(i,3) = 0;
+    end
+%     
+%     if mean(segments(i).neighborMat(gliaIdx,2).*segments(i).neighborMat(gliaIdx,5)) ...
+%             / mean(segments(i).neighborMat(nonGliaIdx,2).*segments(i).neighborMat(nonGliaIdx,5))  > 1
+%         plotData(i,5) = 1;
+%     else
+%         plotData(i,5) = 0; 
+%     end
 end
 
 
-
-% newPred = pGliaNeighbor(idxMat(:,bin) == 1) > 0.4 & pNonNeighbor(idxMat(:,bin) == 1) < 0.8;
+for bin = 1:2
+    for crit = 1:size(plotData,2)
+        gliaNeighborRate(bin,crit) = sum(plotData(idxMat(:,bin) == 1,crit)) /sum(idxMat(:,bin) == 1);
+    end
+end
 
 figure
 bar(gliaNeighborRate)
-legend('labels', 'prediction','1 < predicted glia neighbors','location','NorthEast')
-set(gca,'XTick',1:4)
-set(gca,'XTickLabel',{'TP','FN','TN','FP'})
-xlabel('Class by group in prediciton')
-ylabel('Proportion of total number of segments')
+legend('has glia neighbor','prob glia neighbor > 0.5','prob non glia neighbor > 0.5','location','NorthEast')
+set(gca,'XTick',1:2)
+set(gca,'XTickLabel',{'Glia','NonGlia'})
+ylabel('Proportion of segments in class')
 ylim([0 1])
 
 
 
+%%
 % probsTP = pGliaNeighbor(idxMat(:,1) == 1);
 % probsFP = pGliaNeighbor(idxMat(:,3) == 1);    
 % figure
@@ -111,7 +124,12 @@ ylim([0 1])
 % visualizeSegment(PixelList,raw,0,1);
 
     
-    
+%% edge numbers
+
+neighborMats = {segments.neighborMat};
+labels = cell2mat({segments.label});
+numEdges = cellfun(@length,neighborMats);
+mean(numEdges(labels == -1))
     
     
     

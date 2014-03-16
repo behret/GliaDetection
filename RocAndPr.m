@@ -1,14 +1,7 @@
-function [AUC,x,y,boundaryIdx] = RocAndPr( pred, labels, predCross,labelsCross,predTrain, labelsTrain )
+function [AUC,x,y,boundaryIdx] = RocAndPr( pred, labels,cutVal, predCross,labelsCross,predTrain, labelsTrain )
 
-%trapz for AUC!!
 
-if max(pred(:,2)) <= 1
-    cutVal = 0.5;
-else
-    cutVal = 0;
-end
 boundaryIdx = 0;
-
 
 % ROC and PR
 [a b] = sort(pred(:,2),'descend');
@@ -54,7 +47,7 @@ if nargin == 6
     [AUCtrain,xTrain,yTrain,boundaryIdxTrain] = RocAndPr(predTrain,labelsTrain,1);
 end 
 
-if nargin ~= 3
+if nargin ~= 2
     f = figure;
     set(f, 'Position', [500 500 1200 500]);
     subplot(1,2,1)

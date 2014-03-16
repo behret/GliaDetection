@@ -1,4 +1,4 @@
-function [mex,prob,predCut] = sizeCutoffRVM( pred, labels, cutoffs,sizes,fprVal)
+function [cutChoice,prob,predCut] = sizeCutoffRVM( pred, labels, cutoffs,sizes,fprVal)
 
 
 maxes = zeros(1,length(cutoffs));
@@ -41,7 +41,7 @@ for cut = 1:length(cutoffs)
         if maxes(cut) == 0    
             if x(1,i) > fprVal
                 maxes(cut) = y(1,i-1);
-                probs(cut) = predSorted(i,2);
+                probs(cut) = mean([predSorted(i,2) predSorted(i-1,2)]);
             end
         end
 
@@ -53,7 +53,7 @@ cutIdx = sizes<cutoffs(maxIdx);
 predCut = pred(cutIdx == 0,:);
 predCut(:,1) = predCut(:,2) >= probs(maxIdx);
 labelsCut = labels(cutIdx == 0);
-mex = maxes(maxIdx);
+cutChoice = cutoffs(maxIdx);
 prob = probs(maxIdx);
 
 end

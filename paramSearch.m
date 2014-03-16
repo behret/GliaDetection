@@ -27,15 +27,6 @@ end
 for i=1:15
     params{2}(i) = 2^(i);
 end
-% gamma
-% for i= -8:-1
-%     params{1}(i+9) = 2^(2*i);
-% end
-% 
-% % C
-% for i=1:8
-%     params{2}(i) = 2^(2*i);
-% end
 
 % C weights
 params{3} = [1 2 3];
@@ -90,20 +81,20 @@ rateMat = cell2mat(rates);
 
 %% choose best params, get rate estimate and save
 %with cutoff
-maxTP = max(rateMat(rateMat(:,2) < 0.04,1));
-resultParams = combis(rateMat(:,1) == maxTP & rateMat(:,2) < 0.04,:);
+maxTP = max(rateMat(rateMat(:,2) < 0.05,1));
+resultParams = combis(rateMat(:,1) == maxTP & rateMat(:,2) < 0.05,:);
 rateEstimate(1,1:5) = getRateEstimate(parameter,resultParams,'matlab');
 %without cutoff
 rateMatNoCut = rateMat(combis(:,4) == 0,:);
 combisNoCut = combis(combis(:,4) == 0,:);
-maxTP = max(rateMatNoCut(rateMatNoCut(:,2) < 0.05,1));
-resultParams = combisNoCut(rateMatNoCut(:,1) == maxTP & rateMatNoCut(:,2) < 0.05,:);
+maxTP = max(rateMatNoCut(rateMatNoCut(:,2) < 0.055,1));
+resultParams = combisNoCut(rateMatNoCut(:,1) == maxTP & rateMatNoCut(:,2) < 0.055,:);
 rateEstimate(2,1:5) = getRateEstimate(parameter,resultParams,'matlab');
 
 %% plot results
 plotParamSearch( rateMat,combis )
 
-%% new plot
+%% plot data for feature selection evaluation
 
 K = convhull(rateMat(:,1),rateMat(:,2));
 K = [K rateMat(K,:)];
@@ -116,12 +107,6 @@ for i = 1:length(K)
         break;
     end
 end
-%plot(plotVals(:,3),plotVals(:,2),'y-',plotVals(:,3),plotVals(:,2),'b.'
-
-
 save(parameter.testResultFile,'-v7.3');
-
-
-
 
 

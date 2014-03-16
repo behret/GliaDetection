@@ -42,10 +42,10 @@ end
 AUC = trapz(x(1,:),y(1,:));
 
 if nargin == 5
-    [AUCcut,xCut,yCut,boundaryIdxCut] = RocAndPrRVM(predCut,labels,probValCut);
+    [AUCcut,xCut,yCut,boundaryIdxCut] = RocAndPrRVM(predCut,labels,probValCut,1);
 end 
 
-if nargin ~= 3
+if nargin ~= 4
     f = figure;
     set(f, 'Position', [500 500 600 500]);
     %subplot(1,2,1)

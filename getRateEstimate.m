@@ -16,6 +16,7 @@ sizes = sizes(sizes > param(4));
 
 tp = sum(pred(pred(:,3) == 1,1))/sum(labels(partition.test));
 fp = sum(pred(pred(:,3) == 0,1))/sum(labels(partition.test) == 0);
+precision = sum(pred(pred(:,3) == 1,1))/(sum(pred(pred(:,3) == 1,1))+sum(pred(pred(:,3) == 0,1)));
 
 load('G:\Benjamin\dataGraph\features.mat', 'scaleVals');
 sizesTP = sizes(pred(:,1) == 1 & pred(:,3) == 1);

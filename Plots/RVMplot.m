@@ -1,4 +1,4 @@
-function [ rates,pred,AUC,ratioSV ] = RVMcross(parameter,kfold,sigma)
+function [ rates,pred,AUC,ratioSV ] = RVMplot(parameter,kfold,sigma)
 
 load(parameter.featureFile,'featureMatAll','labelStructAll');
 
@@ -46,9 +46,3 @@ rates = [tp fp];
 cutoffs = [0 0.26:0.01:0.35];
 [mex,prob,predCut] = sizeCutoffRVM( pred, labels, cutoffs,featureMat(:,1),fp);
 [AUC x y bound] = RocAndPrRVM( pred, labels, 0.5, predCut,prob);
-
-
-%save(parameter.testResultFile,'-v7.3');
-
-end
-

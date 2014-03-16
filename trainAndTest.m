@@ -19,8 +19,6 @@ if strcmp(method, 'matlab')
     SVMStruct = svmtrain(train,labelsTrain,'kernel_function','rbf',...
         'rbf_sigma',sigma,'boxconstraint',c,'autoscale',false,'options',opt);
     [pred,regVal] = svmclassifyR(SVMStruct,test);
-    % calculate probabilities
-    %prob = -(regVal-min(regVal)) / (max(regVal) - min(regVal));
     prob = -regVal;
     pred = [pred prob labelsTest];
     [predTrain,regValTrain] = svmclassifyR(SVMStruct,train);

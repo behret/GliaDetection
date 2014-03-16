@@ -1,18 +1,8 @@
 function [ rates,pred,AUC,ratioSV ] = RVMcross(parameter,kfold,sigma)
 
-load(parameter.featureFile,'featureMatAll','labelStructAll');
+load(parameter.featureFile,'featureMat','labelStruct');
 
-labelStruct = labelStructAll;
 labels = labelStruct.labels;
-featureMat = featureMatAll;
-
-if parameter.numFeatures ~= 158
-    load('featureFilterGraph');
-    idx(idx ==1) = [];
-    idx = [1 idx];
-    featureMat = featureMat(:,idx(1:parameter.numFeatures));
-end
-
 partition = getPartition(labelStruct,kfold);
 
 for i = 1:kfold
@@ -39,15 +29,24 @@ for i = 1:kfold
     
 end
 %% Plot the results
+
+% set decision boundary to be at 0.05 FPR
+[mex,prob,pred] = sizeCutoffRVM( pred, labels, 0,featureMat(:,1),0.05);
+
 tp = sum(pred(:,1) == 1 & pred(:,3) == 1)/sum(pred(:,3));
 fp = sum(pred(:,1) == 1 & pred(:,3) == 0)/(sum(pred(:,3) == 0));
-rates = [tp fp];
-
-cutoffs = [0 0.26:0.01:0.35];
-[mex,prob,predCut] = sizeCutoffRVM( pred, labels, cutoffs,featureMat(:,1),fp);
-[AUC x y bound] = RocAndPrRVM( pred, labels, 0.5, predCut,prob);
 
 
+% get bet cutoff value
+cutoffs = [0 0.2:0.01:0.4];
+[cutVal,probCut,predCut] = sizeCutoffRVM( pred, labels, cutoffs,featureMat(:,1),0.05);
+%[AUC x y bound] = RocAndPrRVM( pred, labels, prob, predCut,probCut);
+
+tpCut = sum(predCut(:,1) == 1 & predCut(:,3) == 1)/sum(pred(:,3));
+fpCut = sum(predCut(:,1) == 1 & predCut(:,3) == 0)/(sum(pred(:,3) == 0));
+rates = [tp fp cutVal prob tpCut fpCut cutVal probCut];
+
+%testRVM(parameter,prob,sigma );
 %save(parameter.testResultFile,'-v7.3');
 
 end

@@ -1,6 +1,5 @@
 function main()
 
-% profile on;
 parameter = setParam;
 
 tic
@@ -17,10 +16,6 @@ tic
 miniParam(parameter);
 time = toc;
 disp(['Finished parameter search: '  num2str(time/60) ' minutes']);
-
-% profile off;
-% profsave(parameter.profileDir);
-
 
 tic
 varyFeatures;
