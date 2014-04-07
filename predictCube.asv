@@ -110,7 +110,7 @@ f = imshow(green);
 predIm = predCube(390:580,320:510,57);
 set(f,'AlphaData',0.2*predIm);
 
-KLEE_v4('stack',raw(:,:,1:101),'stack_2',seg,'stack_3',predCube,'stack_4',gliaCube);
+KLEE_v4('stack',raw(:,:,1:101),'stack_2',seg,'stack_3',predCube,'stack_4',gliaCube,'stack_5',gliaCubeOld);
 
 
 end

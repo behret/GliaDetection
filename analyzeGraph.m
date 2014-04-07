@@ -65,30 +65,29 @@ for i = 1:length(segments)
     gliaIdx = segments(i).neighborMat(:,4) == 1;
     nonGliaIdx = segments(i).neighborMat(:,4) == 0;
     
-    if length(segments(i).neighborMat(gliaIdx,5)) > 0 
+    if length(segments(i).neighborMat(gliaIdx,5)) > 0
         plotData(i,1) = 1;
     else
         plotData(i,1) = 0; 
     end
     
-    if mean(segments(i).neighborMat(gliaIdx,2)) > .3
+    if mean(segments(i).neighborMat(gliaIdx,2)) > .5
         plotData(i,2) = 1;
     else
         plotData(i,2) = 0; 
     end
     
-    if sum(segments(i).neighborMat(:,4))/length(segments(i).neighborMat(:,4)) > 0.2
-        plotData(i,3) = 1;
-    else
-        plotData(i,3) = 0;
-    end
-%     
-%     if mean(segments(i).neighborMat(gliaIdx,2).*segments(i).neighborMat(gliaIdx,5)) ...
-%             / mean(segments(i).neighborMat(nonGliaIdx,2).*segments(i).neighborMat(nonGliaIdx,5))  > 1
-%         plotData(i,5) = 1;
+%     if sum(gliaIdx)/length(gliaIdx) > 0.2
+%         plotData(i,3) = 1;
 %     else
-%         plotData(i,5) = 0; 
+%         plotData(i,3) = 0;
 %     end
+    
+    if sum(segments(i).neighborMat(gliaIdx,2)) - sum(segments(i).neighborMat(nonGliaIdx,2)) > 0;
+        plotData(i,3) = 1; 
+    else
+        plotData(i,3) = 0; 
+    end
 end
 
 
@@ -100,7 +99,7 @@ end
 
 figure
 bar(gliaNeighborRate)
-legend('has glia neighbor','prob glia neighbor > 0.5','prob non glia neighbor > 0.5','location','NorthEast')
+legend('has glia neighbor','[mean connection probability glia] > 0.5','','location','NorthEast')
 set(gca,'XTick',1:2)
 set(gca,'XTickLabel',{'Glia','NonGlia'})
 ylabel('Proportion of segments in class')

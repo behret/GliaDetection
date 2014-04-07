@@ -1,6 +1,7 @@
 function parameter = setParam()
 
 parameter.useGraph = 1;
+parameter.newDataFlag = 0;
 
 if parameter.useGraph 
     dataDir = 'dataGraph';

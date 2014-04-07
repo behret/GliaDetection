@@ -1,12 +1,15 @@
 function calcFeatures(parameter)
 
-% calculate shape and intensity features
 for i = parameter.tracingsToUse
+    if parameter.newDataFlag
+        miniFilter(parameter,i);
+    end
+    
     load(parameter.tracings(i).segmentFile);
-
-    miniFilter(parameter,i);
+    
     matShape = miniShape(parameter,segments,i);
     matIntensity = miniIntensity(parameter,segments,i);  
+    %matGraph = miniGraph(parameter,segments,i);
     
     matCombined{i} = cat(2,matShape,matIntensity);
     labels{i} = cell2mat({segments.label})';
@@ -35,7 +38,7 @@ for feat = 1:size(matAll,2)
         scaleVals(feat,2);
 end
 
-% post processing
+% delete features that have nan values
 delList = [];
 for i = 1:size(featureMatAll,2)
     if any(isnan(featureMatAll(:,i)))
