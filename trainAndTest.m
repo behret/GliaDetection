@@ -1,4 +1,4 @@
-function [pred predTrain, ratioSV] = trainAndTest( featureMat,labels,partition,param,method )
+function [pred ratioSV] = trainAndTest( featureMat,labels,partition,param,method )
 
 %% prepare data
 
@@ -20,9 +20,10 @@ if strcmp(method, 'matlab')
         'rbf_sigma',sigma,'boxconstraint',c,'autoscale',false,'options',opt);
     [pred,regVal] = svmclassifyR(SVMStruct,test);
     prob = -regVal;
+    prob = prob - min(prob);
+    prob = (prob - min(prob))/(max(prob) - min(prob));
+ 
     pred = [pred prob labelsTest];
-    [predTrain,regValTrain] = svmclassifyR(SVMStruct,train);
-    predTrain = [predTrain -regValTrain labelsTrain];
     ratioSV = length(SVMStruct.SupportVectors)/length(labelsTrain);
 elseif strcmp(method, 'libsvm')
 

@@ -1,13 +1,12 @@
-function getLabeledSegments(parameter)
+function segments = getLabeledSegments(parameter,includeUnlabeled)
 
-for tracing = parameter.tracingsToUse;
+for tracing = parameter.tracingsToUse
     
     skel = skeleton(parameter.tracings(tracing).nml,0);
     bbox = parameter.tracings(tracing).bbox;
     load(parameter.tracings(tracing).cubeFile,'seg');
-    if parameter.useGraph
-        load(parameter.tracings(tracing).graphFile);
-    end
+    load(parameter.tracings(tracing).graphFile);
+    graphData = [edgesNew pNew];
     
     %% get tree ids
 
@@ -63,9 +62,7 @@ for tracing = parameter.tracingsToUse;
         else
             glia.ids(glia.ids == corrected(4,i)) = [];
         end
-    end
-    
-%%%%% analysis nodes per segment   
+    end  
     
     glia.ids = unique(glia.ids);
     nonGlia.ids = unique(nonGlia.ids);
@@ -77,37 +74,48 @@ for tracing = parameter.tracingsToUse;
     nonGlia.ids(nonGlia.ids == 0) = [];
 
     
-    %% get segment pixel lists
-    
+    %% build segments struct    
     props = regionprops(seg,'PixelIdxList');
-    glia.PixelIdxLists = props(glia.ids);
-    nonGlia.PixelIdxLists = props(nonGlia.ids);
     
-    %if graph is not used, make sure no segment gets excluded
-    if ~parameter.useGraph
-        edgesNew = [glia.ids nonGlia.ids];
+    ids = [glia.ids nonGlia.ids];
+    if includeUnlabeled
+        allIds = unique(seg);
+        unlabeledIds = setdiff(allIds,ids);
+        unlabeledIds(unlabeledIds == 0) = [];
+        ids = [ids unlabeledIds'];
     end
-     
-    %restructure
-    for i=1:length(glia.ids)
-        segments(i).PixelIdxList = glia.PixelIdxLists(i).PixelIdxList;
-        segments(i).id = glia.ids(i);
-        segments(i).label = 1;
-        segments(i).inGraph = any(unique(edgesNew) == glia.ids(i));
 
+    for i=1:length(ids)      
+        if i <= length(glia.ids)     
+            segments(i).label = 1;
+        elseif  i <= length(glia.ids) + length(nonGlia.ids)
+            segments(i).label = 0;
+        else
+            segments(i).label = -1;
+        end
+        
+        segments(i).PixelIdxList = props(ids(i)).PixelIdxList;
+        segments(i).id = ids(i);       
+        % graph info
+        [rows,cols] = ind2sub(size(graphData),find(graphData == ids(i)));
+        edges = graphData(rows,:);
+        neighbors = setdiff(unique([edges(:,1) ; edges(:,2)]),ids(i));
+        neighborMat = [];     
+        for j = 1:length(neighbors) 
+            [rows,cols] = ind2sub(size(edges),find(edges == neighbors(j)));
+            connProb = edges(rows(1),3);     %there might be duplicates..take first one                           
+            neighborMat(j,1:2) = [neighbors(j) connProb];
+        end
+        segments(i).neighborMat = neighborMat;
     end 
-    for i=1:length(nonGlia.ids)
-        segments(length(glia.ids)+i).PixelIdxList = nonGlia.PixelIdxLists(i).PixelIdxList;
-        segments(length(glia.ids)+i).id = nonGlia.ids(i);
-        segments(length(glia.ids)+i).label = 0;
-        segments(length(glia.ids)+i).inGraph = any(unique(edgesNew) == nonGlia.ids(i));
+    if includeUnlabeled
+        save(parameter.tracings(tracing).segmentAllFile,'segments','-v7.3');  
+    else
+        totalNrSegs = length(unique(seg));
+        save(parameter.tracings(tracing).segmentFile,'segments','commonIds','totalNrSegs','-v7.3');  
     end
-
-    totalNrSegs = length(unique(seg));
-    save(parameter.tracings(tracing).segmentFile,'segments','commonIds','totalNrSegs','-v7.3');
-    clearvars -except parameter tracing;
+    clearvars -except parameter tracing includeUnlabeled;
     
-%%%%% analysis missed segments
 end
 end
 

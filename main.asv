@@ -30,6 +30,10 @@ time = toc;
 disp(['Finished predicting cubes: '  num2str(time/60) ' minutes']);
 
 
+addGraphFeatures(parameter)
+
+getLabeledData(parameter)
+
 
 end
 

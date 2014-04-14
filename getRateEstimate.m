@@ -8,7 +8,7 @@ labelStruct = labelStructAll;
 labels = labelStruct.labels;
 
 %% test set rates/plot
-[pred predTrain ratioSV] = trainAndTest(featureMat,labels,partition,param,method );
+[pred ratioSV] = trainAndTest(featureMat,labels,partition,param,method );
 % do cutoff
 sizes = featureMat(partition.test,1);
 pred = pred(sizes > param(4),:);

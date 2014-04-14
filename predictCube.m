@@ -1,5 +1,9 @@
 function [ output_args ] = predictCube( )
 
+% predict whole area of upper half of first tracing region using t2 and t3
+% as training data
+
+
 %% prepare data
 parameter = setParam;
 
@@ -98,9 +102,13 @@ segmentsNew = analyzeGraph(parameter,pred,ids,1);
 %% generate prob cube, KLEE
 predCube = false(size(seg));
 gliaCube = false(size(seg));
- 
+for i = 1:length(segmentsNew)  
+    %predCube(seg == segmentsNew(i).id) = segmentsNew(i).pred(1) == 1;    
+    gliaCube(seg == segmentsNew(i).id) = segmentsNew(i).label == 1;    
+end
 
 load(parameter.tracings(1).cubeFile,'raw');
+
 figure
 rawIm = uint8(raw(390:580,320:510,57));
 imshow(rawIm)

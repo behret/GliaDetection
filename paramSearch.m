@@ -31,11 +31,11 @@ end
 % C weights
 params{3} = [1 2 3];
 
-% for testing
+% % for testing
 % params{1} = [0.25 0.5];
 % params{2} = [16 32];
 % params{3} = [1 2];
-% cutoffs = 0;
+% cutoffs = [0 .3];
 
 %% get param combinations
 
@@ -76,8 +76,12 @@ for i = 1:length(combis)
     new(length(cutoffs)*(i-1)+1:length(cutoffs)*(i-1)+length(cutoffs),:) = [repmat(combis(i,:),length(cutoffs),1) cutoffs'] ;
 end
 combis = new;
+
 rateMat = cell2mat(rates);
 
+save([parameter.testResultFile 'Before'],'-v7.3');
+scatter(rateMat(:,5),rateMat(:,4));
+saveas(gcf,'C:\Users\behret\Dropbox\BachelorArbeit\TestNewFeatures','pdf');
 
 %% choose best params, get rate estimate and save
 %with cutoff

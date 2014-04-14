@@ -1,6 +1,5 @@
 function featureVal = calcConcavity(PixelList,number)
 
-    try
     for i = 1:3
 
         sliceVals = unique(PixelList(:,i));
@@ -36,7 +35,11 @@ function featureVal = calcConcavity(PixelList,number)
             if length(coordsIn2D) < 20 
                 continue;
             end
-            [K,v] = convhull(coordsIn2D(:,1),coordsIn2D(:,2));
+            try
+                [K,v] = convhull(coordsIn2D(:,1),coordsIn2D(:,2));
+            catch
+                continue;
+            end
             %calc area of convhull
             wholeArea = [sort(repmat([min(coordsIn2D(:,1)):max(coordsIn2D(:,1))]',length(min(coordsIn2D(:,2)):max(coordsIn2D(:,2))),1)) ...
                 repmat([min(coordsIn2D(:,2)):max(coordsIn2D(:,2))]',length(min(coordsIn2D(:,1)):max(coordsIn2D(:,1))),1)];
@@ -48,11 +51,13 @@ function featureVal = calcConcavity(PixelList,number)
         end
 
     end
-    featureVal = sum(ratios)/sum(ratios ~= 0);
-    catch
-        disp('skipped');
-        featureVal = 0.7;
+    
+    if exist('ratios')
+        featureVal = sum(ratios)/sum(ratios ~= 0);
+    else
+        featureVal = 0.92; %mean of value
     end
+
 
 end
 

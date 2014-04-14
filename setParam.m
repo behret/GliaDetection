@@ -1,47 +1,38 @@
 function parameter = setParam()
 
-parameter.useGraph = 1;
+dataDir = 'data';
 parameter.newDataFlag = 0;
-
-if parameter.useGraph 
-    dataDir = 'dataGraph';
-    parameter.tracingsToUse = [1 2 3];   
-    parameter.featureFile = ['G:\Benjamin\' dataDir '\features'];
-else
-    dataDir = 'data';
-    parameter.tracingsToUse = [1 2];
-    parameter.featureFile = ['G:\Benjamin\' dataDir '\features_t1_t2'];
-end
-
-parameter.numFeatures = 158;
-parameter.testResultFile = ['G:\Benjamin\' dataDir '\results\resultNewCutoff' num2str(parameter.numFeatures)];
-
-parameter.tracings(1).nml = ['G:\Benjamin\' dataDir '\tracing1\densetracing.nml'];
-parameter.tracings(1).bbox = [4097 4736; 4481 5248; 2250 2450]-1; % offset in cubes!
-parameter.tracings(1).cubeFile = ['G:\Benjamin\' dataDir '\tracing1\cubesAll'];
-parameter.tracings(1).segmentFile = ['G:\Benjamin\' dataDir '\tracing1\segments'];
-parameter.tracings(1).filterdCubesDir = ['G:\Benjamin\' dataDir '\tracing1\filterdCubes\'];
-parameter.tracings(1).graphFile = ['G:\Benjamin\' dataDir '\tracing1\graph'];
-
-parameter.tracings(2).nml = ['G:\Benjamin\' dataDir '\tracing2\densetracing.nml'];
-parameter.tracings(2).bbox = [1417 1717; 4739 5039; 890 1190]-1; % offset in cubes!
-parameter.tracings(2).cubeFile = ['G:\Benjamin\' dataDir '\tracing2\cubesAll'];
-parameter.tracings(2).segmentFile = ['G:\Benjamin\' dataDir '\tracing2\segments'];
-parameter.tracings(2).filterdCubesDir = ['G:\Benjamin\' dataDir '\tracing2\filterdCubes\'];
-parameter.tracings(2).graphFile = ['G:\Benjamin\' dataDir '\tracing2\graph'];
-
-parameter.tracings(3).nml = ['G:\Benjamin\' dataDir '\tracing3\densetracing.nml'];
-parameter.tracings(3).bbox = [6800 7100;2140 2340;1236 1536]-1; % offset in cubes!
-parameter.tracings(3).cubeFile = ['G:\Benjamin\' dataDir '\tracing3\cubesAll'];
-parameter.tracings(3).segmentFile = ['G:\Benjamin\' dataDir '\tracing3\segments'];
-parameter.tracings(3).filterdCubesDir = ['G:\Benjamin\' dataDir '\tracing3\filterdCubes\'];
-parameter.tracings(3).graphFile = ['G:\Benjamin\' dataDir '\tracing3\graph'];
-
+parameter.tracingsToUse = [1 2 3];   
+parameter.featureFile = 'G:\Benjamin\data\features';
+parameter.numFeatures = 159;
+parameter.testResultFile = ['G:\Benjamin\data\results\resultNewCutoff' num2str(parameter.numFeatures)];
 parameter.filter = {{'sortedeigenvalueshessian' [3 5] []}...
      {'gaussiansmoothedgradmagnitude' [3 5] []}...
      {'intensitygaussiansmoothed' [3 5] []}...
      {'laplaceofgaussian' [3 5] []}...
      {'differenceofgaussians' [3 5] []}};
+ 
+% still an offset of -1
+% bbox3 is still wrong! should go to 2440 in y
+bboxes{1} = [4097 4736; 4481 5248; 2250 2450]-1;
+bboxes{2} = [1417 1717; 4739 5039; 890 1190]-1;
+bboxes{3} = [6800 7100; 2140 2340; 1236 1536]-1;
+
+
+for i = 1:3
+
+    dir = ['G:\Benjamin\data\tracing' num2str(i) '\'];
+
+    parameter.tracings(i).nml = [dir 'densetracing.nml'];
+    parameter.tracings(i).cubeFile = [dir 'cubesAll'];
+    parameter.tracings(i).segmentFile = [dir 'segments'];
+    parameter.tracings(i).segmentAllFile = [dir 'segmentsAll'];
+    parameter.tracings(i).featuresAllFile = [dir 'featuresAll'];
+    parameter.tracings(i).filterdCubesDir = [dir 'filterdCubes\'];
+    parameter.tracings(i).graphFile = [dir 'graph'];
+    parameter.tracings(i).bbox = bboxes{i}; 
+
+end
 
 end
 
