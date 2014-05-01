@@ -1,21 +1,32 @@
-function [ output_args ] = predictCubes(parameter)
+function rates = predictCubes(parameter,newFlag)
 
+rates = [];
 for i = parameter.tracingsToUse
 
     %% load training data
-
-    load(parameter.featureFile,'featureMatAll','labelStructAll');
     trainTracings = setdiff([1 2 3],i);
-    train = featureMatAll(labelStructAll.ids(:,1) == trainTracings(1) | labelStructAll.ids(:,1) == trainTracings(1),:);
-    labelsTrain = labelStructAll.labels(labelStructAll.ids(:,1) == trainTracings(1) | labelStructAll.ids(:,1) == trainTracings(1));
-
-    load(parameter.tracings(i).featuresAllFile,'featureMat','labelStruct')    
+    train = [];
+    labelsTrain = [];
+    for j = trainTracings        
+        if newFlag
+            load(parameter.tracings(j).featureFileNew,'featureMat','labels');
+        else
+            load(parameter.tracings(j).featureFile,'featureMat','labels');
+        end        
+        train = [train ; featureMat(labels ~= -1,:)];
+        labelsTrain = [labelsTrain ; labels(labels ~= -1)] ;
+    end
+    if newFlag
+        load(parameter.tracings(i).featureFileNew,'featureMat','labels')  
+    else
+        load(parameter.tracings(i).featureFile,'featureMat','labels')  
+    end
     test = featureMat;
-    labelsTest = labelStruct.labels;
+    labelsTest = labels;
 
     %% classify
 
-    load('G:\Benjamin\dataGraph\results\results','resultParams');
+    load(parameter.paramFile);
     param = resultParams;
     sigma = 1/sqrt(2*param(1));
     c = repmat(param(2),length(labelsTrain),1);
@@ -34,11 +45,11 @@ for i = parameter.tracingsToUse
     boundary = getDecisionBoundary(prob,0.15);    
     pred = [prob > boundary , prob , labelsTest];
     predLabeled = pred(pred(:,3) ~= -1,:);
-    tp = sum(pred(pred(:,3) == 1,1))/sum(labelsTest == 1)
-    fp = sum(pred(pred(:,3) == 0,1))/sum(labelsTest == 0)
+    tp = sum(pred(pred(:,3) == 1,1))/sum(labelsTest == 1);
+    fp = sum(pred(pred(:,3) == 0,1))/sum(labelsTest == 0);
 
-    segmentsNew = addGraphData(parameter,pred,i);
-    save([parameter.tracings(i).segmentFile 'New']);
+    rates = [rates tp fp];
+    addGraphData(parameter,pred,i);
 
 
 end

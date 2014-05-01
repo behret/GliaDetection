@@ -1,7 +1,6 @@
-function miniParam(parameter,newFlag)
+function result = predictTest(parameter,newFlag)
 
 
-%get labeled data
 featureMatAll = [];
 labelsAll = [];
 
@@ -16,20 +15,5 @@ for tracing = parameter.tracingsToUse
     labelsAll = [labelsAll ; labels(labeledIdx)];
 end
 
-matlabpool 8
-tic
-paramSearch(parameter,featureMatAll,labelsAll);
-toc
-matlabpool close
-
-
-
-% jm = parcluster;
-% job = batch(jm,@paramSearch,1,{parameter},'MatlabPool',8);
-% wait(job);
-% rates = fetchOutputs(job);
-% destroy(job);
-
-end
-
-
+load(parameter.paramFile);
+[result,predAll] = crossVal(featureMatAll,labelsAll,resultParams(1:3),resultParams(4),4,'matlab');

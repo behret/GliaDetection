@@ -1,20 +1,19 @@
-function segments = addGraphData( parameter,pred,tracing )
+function addGraphData( parameter,pred,tracing )
 
 
 %% prepare data
 
-load(parameter.tracings(tracing).segmentAllFile,'segments');
-load(parameter.tracings(tracing).featuresAllFile,'delList');
+load(parameter.tracings(tracing).segmentFile,'segments');
+load(parameter.tracings(tracing).featureFile,'delSegIdx');
 load(parameter.tracings(tracing).graphFile);
 graphData = [edgesNew pNew];
 
 allIds = cell2mat({segments.id});
-deletedIds = allIds(delList);
-ids = allIds(setdiff(1:length(allIds),delList))';
-segments(delList) = [];
+deletedIds = allIds(delSegIdx);
+ids = allIds(setdiff(1:length(allIds),delSegIdx))';
+segments(delSegIdx) = [];
 
 %% write data into segment struct
-
 
 for i = 1:length(segments)     
     % get label and pred for segment
@@ -34,6 +33,8 @@ for i = 1:length(segments)
     end
     segments(i).neighborMat(delEdge,:) = [];
 end
+segmentsNew = segments;
+save(parameter.tracings(tracing).segmentFileNew,'segmentsNew');
 
 end
 

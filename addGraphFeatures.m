@@ -3,8 +3,8 @@ function addGraphFeatures(parameter)
 
 for tracing = 1:3
     
-    load(parameter.tracings(tracing).featuresAllFile);
-    load([parameter.tracings(tracing).segmentFile 'New'], 'segmentsNew');
+    load(parameter.tracings(tracing).featureFile);
+    load(parameter.tracings(tracing).segmentFileNew, 'segmentsNew');
     
     for i = 1:length(segmentsNew)
         
@@ -21,7 +21,7 @@ for tracing = 1:3
             mat(i,16) = length(gliaIdx);
             mat(i,17) = sum(gliaIdx)/length(gliaIdx);
             mat(i,18) = mean(neighborMat(:,2).*neighborMat(:,5));   
-            %stats of nonGlia connections (if there are any)
+            % stats of nonGlia connections (if there are any)
             if sum(gliaIdx == 0 ~= 0)
                 mat(i,1) = max(neighborMat(gliaIdx == 0,2));
                 mat(i,2) = min(neighborMat(gliaIdx == 0,2));
@@ -51,5 +51,5 @@ for tracing = 1:3
 
     featureMat(:,160:177) = mat;
     clear mat;
-    save([parameter.tracings(tracing).featuresAllFile 'New'], 'featureMat');
+    save(parameter.tracings(tracing).featureFileNew, 'featureMat','labels');
 end

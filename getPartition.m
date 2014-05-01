@@ -1,9 +1,8 @@
-function [partition] = getPartition(labelStruct,kfold)
+function [partition] = getPartition(labels,kfold)
 
 
 %% prepare data
 
-labels = labelStruct.labels;
 
 % prepare partition indices
 glia.unused = find(labels == 1);

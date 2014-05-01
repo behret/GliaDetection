@@ -1,4 +1,4 @@
-function segments = getLabeledSegments(parameter,includeUnlabeled)
+function segments = getLabeledSegments(parameter)
 
 for tracing = parameter.tracingsToUse
     
@@ -78,13 +78,11 @@ for tracing = parameter.tracingsToUse
     props = regionprops(seg,'PixelIdxList');
     
     ids = [glia.ids nonGlia.ids];
-    if includeUnlabeled
-        allIds = unique(seg);
-        unlabeledIds = setdiff(allIds,ids);
-        unlabeledIds(unlabeledIds == 0) = [];
-        ids = [ids unlabeledIds'];
-    end
-
+    allIds = unique(seg);
+    unlabeledIds = setdiff(allIds,[glia.ids nonGlia.ids]);
+    unlabeledIds(unlabeledIds == 0) = [];
+    ids = [glia.ids nonGlia.ids unlabeledIds'];
+    
     for i=1:length(ids)      
         if i <= length(glia.ids)     
             segments(i).label = 1;
@@ -108,12 +106,8 @@ for tracing = parameter.tracingsToUse
         end
         segments(i).neighborMat = neighborMat;
     end 
-    if includeUnlabeled
-        save(parameter.tracings(tracing).segmentAllFile,'segments','-v7.3');  
-    else
-        totalNrSegs = length(unique(seg));
-        save(parameter.tracings(tracing).segmentFile,'segments','commonIds','totalNrSegs','-v7.3');  
-    end
+    totalNrSegs = length(unique(seg));
+    save(parameter.tracings(tracing).segmentFile,'segments','commonIds','totalNrSegs','-v7.3');  
     clearvars -except parameter tracing includeUnlabeled;
     
 end

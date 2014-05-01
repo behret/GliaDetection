@@ -2,10 +2,12 @@ function parameter = setParam()
 
 dataDir = 'data';
 parameter.newDataFlag = 0;
-parameter.tracingsToUse = [1 2 3];   
-parameter.featureFile = 'G:\Benjamin\data\features';
+parameter.tracingsToUse = [1 2 3];  
 parameter.numFeatures = 159;
-parameter.testResultFile = ['G:\Benjamin\data\results\resultNewCutoff' num2str(parameter.numFeatures)];
+parameter.featureFile = 'G:\Benjamin\data\features';
+parameter.scaleValFile = 'G:\Benjamin\data\scaleVals';
+parameter.paramFile = 'G:\Benjamin\data\params';
+parameter.testResultFile = ['G:\Benjamin\data\results\result-' strrep(datestr(now),':','')];
 parameter.filter = {{'sortedeigenvalueshessian' [3 5] []}...
      {'gaussiansmoothedgradmagnitude' [3 5] []}...
      {'intensitygaussiansmoothed' [3 5] []}...
@@ -26,8 +28,9 @@ for i = 1:3
     parameter.tracings(i).nml = [dir 'densetracing.nml'];
     parameter.tracings(i).cubeFile = [dir 'cubesAll'];
     parameter.tracings(i).segmentFile = [dir 'segments'];
-    parameter.tracings(i).segmentAllFile = [dir 'segmentsAll'];
-    parameter.tracings(i).featuresAllFile = [dir 'featuresAll'];
+    parameter.tracings(i).segmentFileNew = [dir 'segmentsNew'];
+    parameter.tracings(i).featureFile = [dir 'features'];
+    parameter.tracings(i).featureFileNew = [dir 'featuresNew'];
     parameter.tracings(i).filterdCubesDir = [dir 'filterdCubes\'];
     parameter.tracings(i).graphFile = [dir 'graph'];
     parameter.tracings(i).bbox = bboxes{i}; 

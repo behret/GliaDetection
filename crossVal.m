@@ -1,10 +1,9 @@
-function [result,predAll] = crossVal(featureMat,labelStruct,param,cutoffs,kfold,method)
+function [result,predAll] = crossVal(featureMat,labels,param,cutoffs,kfold,method)
 
 
 %% prepare data
 
-partition = getPartition(labelStruct,kfold);
-labels = labelStruct.labels;
+partition = getPartition(labels,kfold);
 
 
 %% training and prediction
