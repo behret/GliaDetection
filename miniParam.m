@@ -1,4 +1,4 @@
-function miniParam(parameter,newFlag)
+function maxTP = miniParam(parameter,newFlag)
 
 
 %get labeled data
@@ -16,10 +16,9 @@ for tracing = parameter.tracingsToUse
     labelsAll = [labelsAll ; labels(labeledIdx)];
 end
 
+
 matlabpool 8
-tic
-paramSearch(parameter,featureMatAll,labelsAll);
-toc
+maxTP = paramSearch(parameter,featureMatAll,labelsAll,newFlag);
 matlabpool close
 
 

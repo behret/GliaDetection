@@ -1,13 +1,12 @@
 function parameter = setParam()
 
-% 0 for no inclusion
-% 1 for inclusion after first prediction, 
-% 2 for direct inclusion
+
+% 1 for inclusion after first 
 parameter.includeNeighbors = 1;
 if parameter.includeNeighbors
-    datadir = 'data';
-elseif parameter.includeNeighbors == 2
     datadir = 'dataNew';
+else
+    datadir = 'data';
 end
 parameter.newDataFlag = 0;
 parameter.tracingsToUse = [1 2 3];  

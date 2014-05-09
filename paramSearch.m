@@ -1,19 +1,13 @@
-function paramSearch(parameter,featureMat,labels)
+function maxTP = paramSearch(parameter,featureMat,labels,newFlag)
 
 
-if parameter.numFeatures ~= 159
-    load('featureFilterGraph');
-    idx(idx ==1) = [];load(parameter.featureFile,'featureMat','labelStruct');
-
-    idx = [1 idx];
-    featureMat = featureMat(:,idx(1:parameter.numFeatures));
-end
 %% define ranges
 
 % size cutoff
 quan = quantile(featureMat(:,1),9);
 % cutoffs = [0 quan(1:4)];
-cutoffs = [0 0.26:0.03:0.35];
+% cutoffs = [0 0.26:0.03:0.35];
+cutoffs = 0;
 
 % gamma
 for i= -15:-1
@@ -28,11 +22,11 @@ end
 % C weights
 params{3} = [1 2 3];
 
-% % for testing
-% params{1} = [0.25 0.5];
-% params{2} = [16 32];
-% params{3} = [1 2];
-% cutoffs = [0 .3];
+% for testing
+params{1} = [0.0001 0.001 0.01 0.1];
+params{2} = [32 256 1024 4096];
+params{3} = [1 2];
+cutoffs = 0;
 
 %% get param combinations
 
@@ -75,19 +69,20 @@ end
 combis = new;
 rateMat = cell2mat(rates);
 
-scatter(rateMat(:,5),rateMat(:,4));
-saveas(gcf,['C:\Users\behret\Dropbox\BachelorArbeit\Test' strrep(datestr(now),':','')],'pdf');
+
 
 %% choose best params, get rate estimate and save
 %with cutoff
-maxTP = max(rateMat(:,4));
-resultParams = combis(rateMat(:,4) == maxTP,:);
+maxTP = max(rateMat(:,1));
+resultParams = combis(rateMat(:,1) == maxTP,:);
 resultParams = resultParams(1,:);
-    
-save(parameter.testResultFile,'-v7.3');
+
+save(parameter.paramFile{newFlag+1},'-v7.3');    
+
 
 %% plot results
-%plotParamSearch( rateMat,combis )
-
+% plotParamSearch( rateMat,combis )
+scatter(rateMat(:,2),rateMat(:,1));
+saveas(gcf,['C:\Users\behret\Dropbox\BachelorArbeit\Test' strrep(datestr(now),':','')],'pdf');
 
 

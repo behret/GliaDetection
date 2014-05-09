@@ -1,5 +1,7 @@
 function main()
 
+diary on
+
 parameter = setParam;
 
 tic
@@ -11,24 +13,29 @@ tic
 calcFeatures(parameter);
 time = toc;
 disp(['Calculated Features, time: ' num2str(time/60) ' minutes']);
-
+ 
 tic
-miniParam(parameter,0);
+if parameter.includeNeighbors == 1
+    % include neighbors after first prediction
+    % do param search and predict, then add additional features, run again
+
+    miniParam(parameter,0)
+    rates(1,1:6) = predict(parameter,0)
+    
+    addGraphFeatures(parameter);   
+    miniParam(parameter,1)
+    rates(2,1:6) = predict(parameter,1)
+
+else parameter.includeNeighbors
+    % include neighbors directly or dont include neighbors
+    
+    miniParam(parameter,0);
+    rates(1,1:6) = predict(parameter,0)
+end             
 time = toc;
-disp(['Finished parameter search: '  num2str(time/60) ' minutes']);
-
-for i = 1:10
-    parameter = setParam;
-    miniParam(parameter,i~=1);
-    rates(i,1:6) = predict(parameter,i~=1)
-    addGraphFeatures(parameter);
-end
-plot(rates(:,4));
-saveas(gcf,'C:\Users\behret\Dropbox\BachelorArbeit\TestResult','pdf');
-save([parameter.testResultFile 'all']);
-
-
-end
+disp(['Finished parameter search and testing: '  num2str(time/60) ' minutes']);
 
 
 
+diary 'C:\Users\behret\Dropbox\BachelorArbeit\diary.txt'
+diary off

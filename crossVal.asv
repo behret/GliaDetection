@@ -31,6 +31,12 @@ for i = 1:kfold
         tp5 = sum(pred(pred(:,3) == 1,1))/sum(labels(partition(i).test));
         fp5 = sum(pred(pred(:,3) == 0,1))/sum(labels(partition(i).test) == 0);
         prec5 = sum(pred(pred(:,3) == 1,1)) / (sum(pred(pred(:,3) == 1,1)) + sum(pred(pred(:,3) == 0,1)));
+
+        boundary = getDecisionBoundary(pred(:,2),0.12);
+        pred(:,1) = pred(:,2) > boundary;
+        tp12 = sum(pred(pred(:,3) == 1,1))/sum(labels(partition(i).test));
+        fp12 = sum(pred(pred(:,3) == 0,1))/sum(labels(partition(i).test) == 0);
+        prec12 = sum(pred(pred(:,3) == 1,1)) / (sum(pred(pred(:,3) == 1,1)) + sum(pred(pred(:,3) == 0,1))); 
         
         boundary = getDecisionBoundary(pred(:,2),0.15);
         pred(:,1) = pred(:,2) > boundary;
@@ -45,7 +51,7 @@ for i = 1:kfold
 end
 
 for i = 1:length(cutoffs) 
-    resultRates(i,1:4) = mean(cell2mat(rates(:,i)));
+    resultRates(i,1:8) = mean(cell2mat(rates(:,i)));
 end
 
 

@@ -25,6 +25,7 @@ if strcmp(method, 'matlab')
     prob = (prob - min(prob))/(max(prob) - min(prob));
     % scale prob to .5 mean and .1 std
     scaledProb = .5 + (prob-mean(prob))*.1/std(prob); 
+    
     pred = [pred scaledProb labelsTest];
     ratioSV = length(SVMStruct.SupportVectors)/length(labelsTrain);
 elseif strcmp(method, 'libsvm')

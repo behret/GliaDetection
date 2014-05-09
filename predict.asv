@@ -29,8 +29,6 @@ partition.train = labelsAll ~= -1;
 partition.test = labelsAll == -1;
 
 pred = trainAndTest(featureMatAll,labelsAll,partition,resultParams(1:3),'matlab');
-% where should the probabilities be scaled...?
-% pred(:,2) = mean(predCross{1}(:,2)) + (pred(:,2)-mean(pred(:,2)))*std(predCross{1}(:,2))/std(pred(:,2)); 
 predAll(partition.train,1:3) = predCross{1};
 predAll(partition.test,1:3) = pred;
 
@@ -42,11 +40,8 @@ fp = sum(predAll(labelsAll == 0,1))/sum(labelsAll == 0);
 
 rates = [rates tp fp];
 
-if ~newFlag
-    for i = parameter.tracingsToUse
-        addGraphData(parameter,predAll(start(i):stop(i),:),i);
-    end
+for i = parameter.tracingsToUse
+    addGraphData(parameter,predAll(start(i):stop(i),:),i);
 end
-
 end
 

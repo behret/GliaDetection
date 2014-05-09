@@ -33,7 +33,7 @@ for i = parameter.tracingsToUse
     
 end
 
-% scale and save features  
+%% scale features,  add neighbors' features , save
 scaleVals(1,1:length(minVals)) = min(minVals);
 scaleVals(2,1:length(maxVals)) = max(maxVals) - min(minVals);
 save(parameter.scaleValFile, 'scaleVals');
@@ -43,12 +43,38 @@ for i = 1:length(featuresAll)
     labels = labelsAll{i};
     ids = idsAll{i};    
     featureMat = zeros(size(featuresAll{i}));
+    %scale
     for feat = 1:size(featureMat,2)
         featureMat(:,feat) = (featuresAll{i}(:,feat)-scaleVals(1,feat)) / ...
             scaleVals(2,feat);
     end
+    if parameter.includeNeighbors
+        % add features of min max med neighbors   
+        % delete segments without neighbors...
+        load(parameter.tracings(i).segmentFile);
+        segments(delSegIdx) = []; 
+        finalMat = [];
+        delSegIdx2 = [];
+        for j = 1:length(featureMat) 
+            neighborMat = segments(j).neighborMat;
+            if ~isempty(neighborMat)
+                minIdx = getIdx(neighborMat,ids,'min');
+                maxIdx = getIdx(neighborMat,ids,'max');
+                medIdx = getIdx(neighborMat,ids,'med');
+                finalMat(end+1,:) = [featureMat(j,:) featureMat(minIdx,:) featureMat(maxIdx,:) featureMat(medIdx,:)];
+            else
+                delSegIdx2 = [delSegIdx2 j];
+            end
+        end
+        featureMat = finalMat;
+        ids(delSegIdx2,:) = [];
+        labels(delSegIdx2) = [];   
+    end
+    
     save(parameter.tracings(i).featureFile,'featureMat','labels','ids','delSegIdx','-v7.3');  
 end
 
 end
 
+
+        
