@@ -1,5 +1,9 @@
 function segments = getLabeledSegments(parameter)
 
+% Extract segments (defined by pixel lists) and their labels from region
+% Labels are dependent on labeling in nml file comments
+% Segments in the region that are not touched by a skeleton have label -1
+
 for tracing = parameter.tracingsToUse
     
     skel = skeleton(parameter.tracings(tracing).nml,0);
@@ -94,7 +98,7 @@ for tracing = parameter.tracingsToUse
         
         segments(i).PixelIdxList = props(ids(i)).PixelIdxList;
         segments(i).id = ids(i);       
-        % graph info
+        % include graph information
         [rows,cols] = ind2sub(size(graphData),find(graphData == ids(i)));
         edges = graphData(rows,:);
         neighbors = setdiff(unique([edges(:,1) ; edges(:,2)]),ids(i));

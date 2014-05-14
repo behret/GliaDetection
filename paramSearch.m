@@ -3,8 +3,8 @@ function maxTP = paramSearch(parameter,featureMat,labels,newFlag)
 
 %% define ranges
 
-% size cutoff
-quan = quantile(featureMat(:,1),9);
+% size cutoff 
+% quan = quantile(featureMat(:,1),9);
 % cutoffs = [0 quan(1:4)];
 % cutoffs = [0 0.26:0.03:0.35];
 cutoffs = 0;
@@ -22,13 +22,13 @@ end
 % C weights
 params{3} = [1 2 3];
 
-% for testing
-params{1} = [0.0001 0.001 0.01 0.1];
-params{2} = [32 256 1024 4096];
-params{3} = [1 2];
-cutoffs = 0;
+% % for testing
+% params{1} = [0.0001 0.001 0.01 0.1];
+% params{2} = [32 256 1024 4096];
+% params{3} = [1 2];
+% cutoffs = 0;
 
-%% get param combinations
+%% get parameter combinations
 
 cols = 0;
 lines = 1;
@@ -71,18 +71,20 @@ rateMat = cell2mat(rates);
 
 
 
-%% choose best params, get rate estimate and save
-%with cutoff
+%% choose best params and save
+% best = highest TPR at 15% glia prevalence (see rates defined in crossVal)
+
 maxTP = max(rateMat(:,1));
 resultParams = combis(rateMat(:,1) == maxTP,:);
 resultParams = resultParams(1,:);
 
+disp(['Maximal TPR at 15% prevalence: ' num2str(maxTP,3)]);
 save(parameter.paramFile{newFlag+1},'-v7.3');    
 
 
 %% plot results
 % plotParamSearch( rateMat,combis )
-scatter(rateMat(:,2),rateMat(:,1));
-saveas(gcf,['C:\Users\behret\Dropbox\BachelorArbeit\Test' strrep(datestr(now),':','')],'pdf');
+% scatter(rateMat(:,2),rateMat(:,1));
+% saveas(gcf,['C:\Users\behret\Dropbox\BachelorArbeit\Test' strrep(datestr(now),':','')],'pdf');
 
 

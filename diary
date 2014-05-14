@@ -12,3 +12,57 @@ rates =
     0.5512    0.0893    0.5551    0.4228    0.0483    0.6368
 
 diary off 
+This is Braintracing NML parser version 0.09, Copyright 2013 MPI of Neurobiology, Martinsried.
+Processing time: 1 seconds.
+File G:\Benjamin\data\tracing1\densetracing.nml successfully imported.
+This is Braintracing NML parser version 0.09, Copyright 2013 MPI of Neurobiology, Martinsried.
+Processing time: 0 seconds.
+File G:\Benjamin\data\tracing2\densetracing.nml successfully imported.
+This is Braintracing NML parser version 0.09, Copyright 2013 MPI of Neurobiology, Martinsried.
+Processing time: 1 seconds.
+File G:\Benjamin\data\tracing3\densetracing.nml successfully imported.
+Got segments, time: 0.94178 minutes
+excluded 63 segments due to nan values
+excluded 27 segments due to nan values
+excluded 30 segments due to nan values
+Calculated Features, time: 22.2115 minutes
+Starting matlabpool using the 'local' profile ... connected to 8 workers.
+Sending a stop signal to all the workers ... stopped.
+
+maxTP =
+
+    0.5644
+
+{Index exceeds matrix dimensions.
+
+Error in <a href="matlab:helpUtils.errorDocCallback('addGraphData', 'R:\Benjamin\GliaDetection\code\addGraphData.m', 29)" style="font-weight:bold">addGraphData</a> (<a href="matlab: opentoline('R:\Benjamin\GliaDetection\code\addGraphData.m',29,0)">line 29</a>)
+            predNeighbor = pred(neighborIdx,1:2);
+
+Error in <a href="matlab:helpUtils.errorDocCallback('predict', 'R:\Benjamin\GliaDetection\code\predict.m', 47)" style="font-weight:bold">predict</a> (<a href="matlab: opentoline('R:\Benjamin\GliaDetection\code\predict.m',47,0)">line 47</a>)
+        addGraphData(parameter,predAll(start(i):stop(i),:),i);
+
+Error in <a href="matlab:helpUtils.errorDocCallback('main', 'R:\Benjamin\GliaDetection\code\main.m', 23)" style="font-weight:bold">main</a> (<a href="matlab: opentoline('R:\Benjamin\GliaDetection\code\main.m',23,0)">line 23</a>)
+    rates(1,1:6) = predict(parameter,0)
+} 
+<a href="matlab: opentoline('R:\Benjamin\GliaDetection\code\addGraphData.m',29,1)">29  </a>            predNeighbor = pred(neighborIdx,1:2);              
+{Error using <a href="matlab:helpUtils.errorDocCallback('parallel.internal.cluster.MatlabpoolHelper>iGetFileDependenciesAssistant', 'G:\Program Files\MATLAB\R2013a\toolbox\distcomp\cluster\+parallel\+internal\+cluster\MatlabpoolHelper.m', 759)" style="font-weight:bold">parallel.internal.cluster.MatlabpoolHelper>iGetFileDependenciesAssistant</a> (<a href="matlab: opentoline('G:\Program Files\MATLAB\R2013a\toolbox\distcomp\cluster\+parallel\+internal\+cluster\MatlabpoolHelper.m',759,0)">line 759</a>)
+matlabpool is not currently active. Use   matlabpool open   to start an interactive session.
+
+Error in <a href="matlab:helpUtils.errorDocCallback('parallel.internal.cluster.MatlabpoolHelper.maybeUpdateAttachedFiles', 'G:\Program Files\MATLAB\R2013a\toolbox\distcomp\cluster\+parallel\+internal\+cluster\MatlabpoolHelper.m', 182)" style="font-weight:bold">parallel.internal.cluster.MatlabpoolHelper.maybeUpdateAttachedFiles</a> (<a href="matlab: opentoline('G:\Program Files\MATLAB\R2013a\toolbox\distcomp\cluster\+parallel\+internal\+cluster\MatlabpoolHelper.m',182,0)">line 182</a>)
+            fda = iGetFileDependenciesAssistant();
+} 
+<a href="matlab: opentoline('G:\Program Files\MATLAB\R2013a\toolbox\distcomp\cluster\+parallel\+internal\+cluster\MatlabpoolHelper.m',759,1)">759 </a>    error(message('parallel:lang:matlabpool:PoolNotRunning'));
+{Error using <a href="matlab:helpUtils.errorDocCallback('parallel.internal.cluster.MatlabpoolHelper>iGetFileDependenciesAssistant', 'G:\Program Files\MATLAB\R2013a\toolbox\distcomp\cluster\+parallel\+internal\+cluster\MatlabpoolHelper.m', 759)" style="font-weight:bold">parallel.internal.cluster.MatlabpoolHelper>iGetFileDependenciesAssistant</a> (<a href="matlab: opentoline('G:\Program Files\MATLAB\R2013a\toolbox\distcomp\cluster\+parallel\+internal\+cluster\MatlabpoolHelper.m',759,0)">line 759</a>)
+matlabpool is not currently active. Use   matlabpool open   to start an interactive session.
+
+Error in <a href="matlab:helpUtils.errorDocCallback('parallel.internal.cluster.MatlabpoolHelper.maybeUpdateAttachedFiles', 'G:\Program Files\MATLAB\R2013a\toolbox\distcomp\cluster\+parallel\+internal\+cluster\MatlabpoolHelper.m', 182)" style="font-weight:bold">parallel.internal.cluster.MatlabpoolHelper.maybeUpdateAttachedFiles</a> (<a href="matlab: opentoline('G:\Program Files\MATLAB\R2013a\toolbox\distcomp\cluster\+parallel\+internal\+cluster\MatlabpoolHelper.m',182,0)">line 182</a>)
+            fda = iGetFileDependenciesAssistant();
+} 
+<a href="matlab: opentoline('G:\Program Files\MATLAB\R2013a\toolbox\distcomp\cluster\+parallel\+internal\+cluster\MatlabpoolHelper.m',759,1)">759 </a>    error(message('parallel:lang:matlabpool:PoolNotRunning'));
+if system_dependent('IsDebugMode')==1, dbquit; end
+dbqit
+{Undefined function or variable 'dbqit'.
+} 
+dbquit
+if system_dependent('IsDebugMode')==1, dbquit; end
+diary 'C:\Users\behret\Dropbox\BachelorArbeit\diary.txt'

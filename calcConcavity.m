@@ -1,4 +1,7 @@
-function featureVal = calcConcavity(PixelList,number)
+function featureVal = calcConcavity(PixelList,numSlices)
+% measure of covexity for a segment. 
+% function computes area/areaOfConvexHull for the n biggest 2D slices of
+% the segment in x y and z plane
 
     for i = 1:3
 
@@ -8,8 +11,8 @@ function featureVal = calcConcavity(PixelList,number)
             sums(j) = sum(PixelList(:,i) == sliceVals(j));
         end
         [sorted,idx] = sort(sums,'descend');    
-        number = min(number,length(sliceVals));
-        for j=1:number
+        numSlices = min(numSlices,length(sliceVals));
+        for j=1:numSlices
 
             val = sliceVals(idx(j));
             coordsIn2D = PixelList(find(PixelList(:,i) == val),sort([mod(i+1,3)+1 mod(i,3)+1]));
@@ -47,15 +50,16 @@ function featureVal = calcConcavity(PixelList,number)
             areaConvhull = sum(in == 1);           
 %             figure
 %             plot(coordsIn2D(K,1),coordsIn2D(K,2),'r-',coordsIn2D(:,1),coordsIn2D(:,2),'b+')            
-            ratios((i-1)*number+j) = length(coordsIn2D)/areaConvhull;
+            ratios((i-1)*numSlices+j) = length(coordsIn2D)/areaConvhull;
         end
 
     end
     
     if exist('ratios')
+        % compute mean without zero values
         featureVal = sum(ratios)/sum(ratios ~= 0);
     else
-        featureVal = 0.92; %mean of value
+        featureVal = 0.92; %set to mean of value to avoid errors
     end
 
 

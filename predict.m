@@ -20,6 +20,9 @@ for tracing = parameter.tracingsToUse
     stop(tracing) = length(labelsAll);
 end
 
+% change such that unlabeled data is also predicted in cross validation to
+% avoid having different probability distributions
+
 % get crossVal results for labeled data
 load(parameter.paramFile{newFlag+1},'resultParams');
 [rates,predCross] = crossVal(featureMatTrain,labelsTrain,resultParams(1:3),0,4,'matlab');
@@ -42,7 +45,7 @@ fp = sum(predAll(labelsAll == 0,1))/sum(labelsAll == 0);
 
 rates = [rates tp fp];
 
-if ~newFlag
+if ~newFlag && parameter.includeNeighbors == 1
     for i = parameter.tracingsToUse
         addGraphData(parameter,predAll(start(i):stop(i),:),i);
     end

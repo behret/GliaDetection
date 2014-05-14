@@ -14,7 +14,7 @@ function featureMat = calcShape(segments)
         segments(i).features(6) = pcFracs(3)/pcFracs(2);
         segments(i).features(7) = pcFracs(3)/pcFracs(1);
         segments(i).features(8) = pcFracs(2)/pcFracs(1);
-        segments(i).features(9) = -pcFracs(1)*log(pcFracs(1))-pcFracs(2)*log(pcFracs(2))-pcFracs(3)*log(pcFracs(3));
+        segments(i).features(9) = -pcFracs(1)*log(pcFracs(1))-pcFracs(2)*log(pcFracs(2))-pcFracs(3)*log(pcFracs(3)); % entropy
 
     end
    

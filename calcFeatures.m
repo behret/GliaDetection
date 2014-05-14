@@ -1,5 +1,7 @@
 function calcFeatures(parameter)
 
+% calculate features for a list of segments
+
 for i = parameter.tracingsToUse
     
     if parameter.newDataFlag
@@ -20,6 +22,7 @@ for i = parameter.tracingsToUse
     minVals(i,1:size(featuresAll{i},2)) = min(featuresAll{i});
     
     % delete segments that have nan values
+    % this should be changed. prevent features from being nan
     delList{i} = [];
     for j = 1:size(featuresAll{i},1)
         if any(isnan(featuresAll{i}(j,:)))
@@ -48,7 +51,7 @@ for i = 1:length(featuresAll)
         featureMat(:,feat) = (featuresAll{i}(:,feat)-scaleVals(1,feat)) / ...
             scaleVals(2,feat);
     end
-    if parameter.includeNeighbors
+    if parameter.includeNeighbors == 2
         % add features of min max med neighbors   
         % delete segments without neighbors...
         load(parameter.tracings(i).segmentFile);

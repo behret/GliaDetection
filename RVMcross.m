@@ -1,9 +1,24 @@
-function [ rates,pred,AUC,ratioSV ] = RVMcross(parameter,kfold,sigma)
+function [ rates,pred,AUC,ratioSV ] = RVMcross(parameter,kfold,sigma,newFlag)
 
-load(parameter.featureFile,'featureMat','labelStruct');
 
-labels = labelStruct.labels;
-partition = getPartition(labelStruct,kfold);
+featureMatAll = [];
+labelsAll = [];
+
+for tracing = parameter.tracingsToUse
+    if newFlag
+        load(parameter.tracings(tracing).featureFileNew,'featureMat','labels');
+    else
+        load(parameter.tracings(tracing).featureFile,'featureMat','labels');
+    end
+    labeledIdx = labels ~= -1;
+    featureMatAll = [featureMatAll ; featureMat(labeledIdx,:)];
+    labelsAll = [labelsAll ; labels(labeledIdx)];
+end
+
+
+featureMat = featureMatAll;
+labels = labelsAll;
+partition = getPartition(labels,kfold);
 
 for i = 1:kfold
     
@@ -24,11 +39,19 @@ for i = 1:kfold
  
     classifier = classifier.train(TrainingDataSet);  
     classified = run(classifier, TestDataSet);     
-    ratioSV(i) = length(classifier.sparseBeta)/length(classifier.beta);
     pred(partition(i).test,1:3) = [classified.data > 0.5 classified.data classified.targets];
     
 end
 %% Plot the results
+
+boundary = getDecisionBoundary(pred(:,2),0.15);
+pred(:,1) = pred(:,2) > boundary;
+tp15 = sum(pred(pred(:,3) == 1,1))/sum(labels);
+fp15 = sum(pred(pred(:,3) == 0,1))/sum(labels == 0);
+prec15 = sum(pred(pred(:,3) == 1,1)) / (sum(pred(pred(:,3) == 1,1)) + sum(pred(pred(:,3) == 0,1))); 
+
+
+
 
 % set decision boundary to be at 0.05 FPR
 [mex,prob,pred] = sizeCutoffRVM( pred, labels, 0,featureMat(:,1),0.05);

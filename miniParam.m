@@ -1,5 +1,5 @@
 function maxTP = miniParam(parameter,newFlag)
-
+% conduct parameter search using the labeled data
 
 %get labeled data
 featureMatAll = [];
@@ -16,7 +16,7 @@ for tracing = parameter.tracingsToUse
     labelsAll = [labelsAll ; labels(labeledIdx)];
 end
 
-
+% start search
 matlabpool 8
 maxTP = paramSearch(parameter,featureMatAll,labelsAll,newFlag);
 matlabpool close

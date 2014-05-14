@@ -4,12 +4,14 @@ function parameter = setParam()
 % 1 for inclusion after first prediction, 
 % 2 for direct inclusion
 parameter.includeNeighbors = 1;
-if parameter.includeNeighbors
+
+if parameter.includeNeighbors == 1
     datadir = 'data';
 elseif parameter.includeNeighbors == 2
     datadir = 'dataNew';
 end
-parameter.newDataFlag = 0;
+
+parameter.newDataFlag = 0; % if 1, filters will be calculated again
 parameter.tracingsToUse = [1 2 3];  
 parameter.featureFile = ['G:\Benjamin\' datadir '\features'];
 parameter.scaleValFile = ['G:\Benjamin\' datadir '\scaleVals'];

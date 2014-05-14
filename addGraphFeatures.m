@@ -15,29 +15,31 @@ for tracing = 1:3
             
             mat(i,1) = size(neighborMat,1);
    
-            % stats of connections
+            %%% stats of connections
             [mat(i,2),maxIdx] = max(neighborMat(:,2));
             [mat(i,3),minIdx] = min(neighborMat(:,2));
             [val,medIdx] = getMedIdx(neighborMat(:,2));
             mat(i,4) = neighborMat(medIdx,2);
-            mat(i,5) = neighborMat(maxIdx,5);
-            mat(i,6) = neighborMat(minIdx,5);
-            mat(i,7) = neighborMat(medIdx,5);
-            mat(i,8) = mean(neighborMat(:,2));
-            mat(i,9) = std(neighborMat(:,2));
+            mat(i,5) = mean(neighborMat(:,2));
+            mat(i,6) = std(neighborMat(:,2));
+            % glia probs corresponding to max min and med
+            mat(i,7) = neighborMat(maxIdx,5);
+            mat(i,8) = neighborMat(minIdx,5);
+            mat(i,9) = neighborMat(medIdx,5);
             
-            % stats of neighbors' glia prob
+            %%% stats of neighbors' glia prob
             [mat(i,10),maxIdx] = max(neighborMat(:,5));
             [mat(i,11),minIdx] = min(neighborMat(:,5));
             [val,medIdx] = getMedIdx(neighborMat(:,5));
             mat(i,12) = neighborMat(medIdx,5);
-            mat(i,13) = neighborMat(maxIdx,2);
-            mat(i,14) = neighborMat(minIdx,2);
-            mat(i,15) = neighborMat(medIdx,2);
-            mat(i,16) = mean(neighborMat(:,5));
-            mat(i,17) = std(neighborMat(:,5));
+            mat(i,13) = mean(neighborMat(:,5));
+            mat(i,14) = std(neighborMat(:,5));
+            % connection probs corresponding do max min and med             
+            mat(i,15) = neighborMat(maxIdx,2);
+            mat(i,16) = neighborMat(minIdx,2);
+            mat(i,17) = neighborMat(medIdx,2);
    
-            % stats of product
+            %%% stats of product
             mat(i,18) = max(neighborMat(:,2).*neighborMat(:,5));   
             mat(i,19) = min(neighborMat(:,2).*neighborMat(:,5));   
             mat(i,20) = median(neighborMat(:,2).*neighborMat(:,5));   
@@ -50,7 +52,7 @@ for tracing = 1:3
 
     end
 
-    featureMat(:,160:181) = mat;
+    featureMat(:,160:181) = mat; % replace graph features from first prediction (160:165)
     clear mat;
     save(parameter.tracings(tracing).featureFileNew, 'featureMat','labels');
 end

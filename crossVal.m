@@ -1,17 +1,14 @@
 function [resultRates,predAll] = crossVal(featureMat,labels,param,cutoffs,kfold,method)
 
 
-%% prepare data
+%% partition labeled data and run training and prediction
 
 partition = getPartition(labels,kfold);
-
-
-%% training and prediction
 for i = 1:kfold     
     prediction{i} = trainAndTest(featureMat,labels,partition(i),param,method);
 end
 
-%% calculate rates
+%% calculate rates for different size cutoffs 
 
 for i = 1:kfold 
     for j = 1:length(cutoffs)  
